@@ -59,7 +59,7 @@ fun LoginScreen(
             Spacer(modifier = Modifier.height(16.dp))
 
             Text(
-                text = "MATHRUSH",
+                text = "MATH RUSH",
                 style = MaterialTheme.typography.headlineLarge,
                 color = MathTextPrimary,
                 letterSpacing = 2.sp

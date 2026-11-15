@@ -20,7 +20,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             MathRushTheme {
                 var pantallaActual by remember { mutableStateOf("login") }
-                var finalScore by remember { mutableStateOf(0) }
+                var finalScore by remember { mutableIntStateOf(0) }
 
                 Scaffold(
                     modifier = Modifier.fillMaxSize(),
