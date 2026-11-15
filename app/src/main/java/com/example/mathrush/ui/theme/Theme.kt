@@ -6,7 +6,6 @@ import androidx.compose.material3.darkColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
 
@@ -45,7 +44,6 @@ private val MathRushColorScheme = darkColorScheme(
 @Composable
 fun MathRushTheme(
     darkTheme: Boolean = true, // Forzamos el tema oscuro propio del juego
-    dynamicColor: Boolean = false, // Desactivado para conservar la identidad visual de MathRush
     content: @Composable () -> Unit
 ) {
     val colorScheme = MathRushColorScheme
@@ -54,9 +52,7 @@ fun MathRushTheme(
     if (!view.isInEditMode) {
         SideEffect {
             val window = (view.context as Activity).window
-            window.statusBarColor = colorScheme.background.toArgb()
-            window.navigationBarColor = colorScheme.background.toArgb()
-            WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = false
+            WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = !darkTheme
         }
     }
 
