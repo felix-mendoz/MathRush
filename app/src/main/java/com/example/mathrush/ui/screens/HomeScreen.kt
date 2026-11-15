@@ -2,10 +2,8 @@ package com.example.mathrush.ui.screens
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Menu
-import androidx.compose.material.icons.outlined.HelpOutline
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -13,22 +11,26 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.mathrush.R
 import com.example.mathrush.ui.theme.*
 
 @Composable
 fun HomeScreen(
+    modifier: Modifier = Modifier,
     onStartGameClick: () -> Unit,
     onPracticeClick: () -> Unit,
     onLeaderboardClick: () -> Unit,
     onHelpClick: () -> Unit,
-    onMenuClick: () -> Unit
+    onMenuClick: () -> Unit,
 ) {
     Surface(
-        modifier = Modifier.fillMaxSize(),
+        modifier = modifier.fillMaxSize(),
         color = MaterialTheme.colorScheme.background
     ) {
         Column(
@@ -44,16 +46,28 @@ fun HomeScreen(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                IconButton(onClick = onHelpClick) {
+                IconButton(
+                    onClick = onHelpClick,
+                    modifier = Modifier
+                        .size(40.dp)
+                        .clip(CircleShape)
+                        .background(MathSurfaceCard)
+                ) {
                     Icon(
-                        imageVector = Icons.Outlined.HelpOutline,
+                        painter = painterResource(id = R.drawable.outline_help),
                         contentDescription = "Ayuda",
                         tint = MathTextSecondary
                     )
                 }
-                IconButton(onClick = onMenuClick) {
+                IconButton(
+                    onClick = onMenuClick,
+                    modifier = Modifier
+                        .size(40.dp)
+                        .clip(CircleShape)
+                        .background(MathSurfaceCard)
+                ) {
                     Icon(
-                        imageVector = Icons.Default.Menu,
+                        painter = painterResource(id = R.drawable.outline_menu),
                         contentDescription = "Menú",
                         tint = MathTextSecondary
                     )
@@ -65,7 +79,7 @@ fun HomeScreen(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                // Icono decorativo estilo arcade (puedes reemplazarlo por una imagen/vector propio)
+                // Icono decorativo
                 Box(
                     modifier = Modifier
                         .size(64.dp)
@@ -82,29 +96,40 @@ fun HomeScreen(
                         color = Color.White,
                         fontSize = 18.sp,
                         fontWeight = FontWeight.Bold,
-                        lineHeight = 18.sp
+                        lineHeight = 18.sp,
+                        textAlign = TextAlign.Center
                     )
                 }
 
-                Text(
-                    text = "MATHRUSH",
-                    style = MaterialTheme.typography.headlineMedium,
-                    color = MathTextPrimary,
-                    letterSpacing = 2.sp
-                )
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(
+                        text = "MATH",
+                        style = MaterialTheme.typography.headlineMedium,
+                        color = MathTextPrimary,
+                        letterSpacing = 2.sp
+                    )
+                    Text(
+                        text = "RUSH",
+                        style = MaterialTheme.typography.headlineMedium,
+                        color = MathTextPrimary,
+                        letterSpacing = 2.sp
+                    )
+                }
             }
 
-            // --- PLAYER PROFILE & STATS CARD ---
+            // --- PLAYER PROFILE
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(20.dp),
-                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+                colors = CardDefaults.cardColors(containerColor = MathSurfaceCard),
                 elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
             ) {
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(20.dp),
+                        .padding(16.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Text(
@@ -115,13 +140,21 @@ fun HomeScreen(
 
                     Spacer(modifier = Modifier.height(16.dp))
 
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceAround
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(12.dp))
+                            .background(MathSurfaceVariant)
+                            .padding(12.dp)
                     ) {
-                        StatItem(title = "Daily Ranking", value = "6 / 155")
-                        StatItem(title = "Weekly Ranking", value = "14 / 798")
-                        StatItem(title = "Global Ranking", value = "32 / 2798")
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceAround
+                        ) {
+                            StatItem(title = "Daily Ranking", value = "6 / 155")
+                            StatItem(title = "Weekly Ranking", value = "14 / 798")
+                            StatItem(title = "Global Ranking", value = "32 / 2798")
+                        }
                     }
                 }
             }
@@ -131,7 +164,7 @@ fun HomeScreen(
                 modifier = Modifier.fillMaxWidth(),
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                // Botón Principal (Online Game / Partida Rápida)
+                // Botón Principal
                 Button(
                     onClick = onStartGameClick,
                     modifier = Modifier
@@ -139,25 +172,37 @@ fun HomeScreen(
                         .height(64.dp),
                     shape = RoundedCornerShape(16.dp),
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = MathPurple
-                    )
+                        containerColor = Color.Transparent
+                    ),
+                    contentPadding = PaddingValues(0.dp)
                 ) {
-                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Text(
-                            text = "Modo Juego",
-                            style = MaterialTheme.typography.titleMedium,
-                            color = Color.White,
-                            fontWeight = FontWeight.Bold
-                        )
-                        Text(
-                            text = "¡Desafía tu mente contra el tiempo!",
-                            style = MaterialTheme.typography.labelMedium,
-                            color = MathTextSecondary
-                        )
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .background(
+                                Brush.linearGradient(
+                                    colors = listOf(Color(0xFFEC4899), Color(0xFFF43F5E))
+                                )
+                            ),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            Text(
+                                text = "Modo desafío",
+                                style = MaterialTheme.typography.titleMedium,
+                                color = Color.White,
+                                fontWeight = FontWeight.Bold
+                            )
+                            Text(
+                                text = "Con tiempo limite y de vidas",
+                                style = MaterialTheme.typography.labelMedium,
+                                color = Color.White.copy(alpha = 0.8f)
+                            )
+                        }
                     }
                 }
 
-                // Botones secundarios (Práctica y Récords/Leaderboard)
+                // Botones secundarios
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(16.dp)
@@ -169,21 +214,38 @@ fun HomeScreen(
                             .height(64.dp),
                         shape = RoundedCornerShape(16.dp),
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = MathSuccessContainer
-                        )
+                            containerColor = Color.Transparent
+                        ),
+                        contentPadding = PaddingValues(0.dp)
                     ) {
-                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                            Text(
-                                text = "Practice",
-                                style = MaterialTheme.typography.titleMedium,
-                                color = MathSuccess,
-                                fontWeight = FontWeight.Bold
-                            )
-                            Text(
-                                text = "Sin límite",
-                                style = MaterialTheme.typography.labelMedium,
-                                color = MathTextSecondary
-                            )
+                        Box(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .background(
+                                    Brush.linearGradient(
+                                        colors = listOf(Color(0xFF34D399), Color(0xFF059669))
+                                    )
+                                ),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Column(
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                modifier = Modifier.padding(horizontal = 4.dp)
+                            ) {
+                                Text(
+                                    text = "Modo practica",
+                                    style = MaterialTheme.typography.titleMedium,
+                                    color = Color.White,
+                                    fontWeight = FontWeight.Bold
+                                )
+                                Text(
+                                    text = "Aprende a jugar",
+                                    style = MaterialTheme.typography.labelMedium,
+                                    color = Color.White.copy(alpha = 0.8f),
+                                    fontSize = 11.sp,
+                                    maxLines = 1
+                                )
+                            }
                         }
                     }
 
@@ -194,21 +256,38 @@ fun HomeScreen(
                             .height(64.dp),
                         shape = RoundedCornerShape(16.dp),
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = MathSurfaceVariant
-                        )
+                            containerColor = Color.Transparent
+                        ),
+                        contentPadding = PaddingValues(0.dp)
                     ) {
-                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                            Text(
-                                text = "Leaderboard",
-                                style = MaterialTheme.typography.titleMedium,
-                                color = MathCyan,
-                                fontWeight = FontWeight.Bold
-                            )
-                            Text(
-                                text = "Ver récords",
-                                style = MaterialTheme.typography.labelMedium,
-                                color = MathTextSecondary
-                            )
+                        Box(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .background(
+                                    Brush.linearGradient(
+                                        colors = listOf(Color(0xFFF59E0B), Color(0xFFD97706))
+                                    )
+                                ),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Column(
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                modifier = Modifier.padding(horizontal = 4.dp)
+                            ) {
+                                Text(
+                                    text = "Puntuaciones",
+                                    style = MaterialTheme.typography.titleMedium,
+                                    color = Color.White,
+                                    fontWeight = FontWeight.Bold
+                                )
+                                Text(
+                                    text = "Mira tu top 10",
+                                    style = MaterialTheme.typography.labelMedium,
+                                    color = Color.White.copy(alpha = 0.8f),
+                                    fontSize = 11.sp,
+                                    maxLines = 1
+                                )
+                            }
                         }
                     }
                 }
@@ -226,14 +305,14 @@ fun StatItem(title: String, value: String) {
             text = title,
             style = MaterialTheme.typography.labelMedium,
             color = MathTextSecondary,
-            fontSize = 11.sp
+            fontSize = 10.sp
         )
         Spacer(modifier = Modifier.height(4.dp))
         Text(
             text = value,
             style = MaterialTheme.typography.titleLarge,
-            color = MathCyan,
-            fontSize = 15.sp,
+            color = MathTextPrimary,
+            fontSize = 14.sp,
             fontWeight = FontWeight.Bold
         )
     }
@@ -241,13 +320,12 @@ fun StatItem(title: String, value: String) {
 
 @Preview
 @Composable
-fun PreviewHomeScreen()
-{
+fun PreviewHomeScreen() {
     HomeScreen(
-        {},
-        {},
-        {},
-        {},
-        {}
+        onStartGameClick = {},
+        onPracticeClick = {},
+        onLeaderboardClick = {},
+        onHelpClick = {},
+        onMenuClick = {},
     )
 }
