@@ -133,7 +133,7 @@ fun HomeScreen(
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Text(
-                        text = "Kyle Walker 001",
+                        text = "Anthony966",
                         style = MaterialTheme.typography.titleLarge,
                         color = MathTextPrimary
                     )
@@ -151,9 +151,9 @@ fun HomeScreen(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.SpaceAround
                         ) {
-                            StatItem(title = "Daily Ranking", value = "6 / 155")
-                            StatItem(title = "Weekly Ranking", value = "14 / 798")
-                            StatItem(title = "Global Ranking", value = "32 / 2798")
+                            StatItem(title = "Ranking Diario", value = "6 / 155")
+                            StatItem(title = "Ranking Semanal", value = "14 / 798")
+                            StatItem(title = "Ranking Global", value = "32 / 2798")
                         }
                     }
                 }
