@@ -16,7 +16,6 @@ import com.example.mathrush.ui.theme.MathRushTheme
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
         setContent {
             MathRushTheme {
                 var pantallaActual by remember { mutableStateOf("login") }
