@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <!-- Rounded Background Card -->
+    <path
+        android:fillColor="#8B5CF6"
+        android:pathData="M24,12 H84 A12,12 0,0 1,96 V84 A12,12 0,0 1,84 96 H24 A12,12 0,0 1,12 84 V24 A12,12 0,0 1,24 12 Z"/>
+    <!-- Plus symbol (+) -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M38,36 H46 V44 H54 V52 H46 V60 H38 V52 H30 V44 H38 Z"/>
+    <!-- Multiply symbol (×) -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M64,36 L72,44 L64,52 L72,60 L68,64 L60,56 L52,64 L48,60 L56,52 L48,44 L56,36 L60,40 Z"/>
+</vector>

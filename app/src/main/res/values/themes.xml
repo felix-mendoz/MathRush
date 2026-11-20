@@ -1,5 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- Native Splash Screen Theme using default Android icon -->
+    <style name="Theme.MathRush.Starting" parent="Theme.SplashScreen">
+        <!-- Background color matching app background -->
+        <item name="windowSplashScreenBackground">@color/math_background</item>
+        <!-- Native splash screen shows default Android icon -->
+        <item name="windowSplashScreenAnimatedIcon">@drawable/ic_splash_logo</item>
+        <!-- Theme to apply after splash screen finishes -->
+        <item name="postSplashScreenTheme">@style/Theme.MathRush</item>
+    </style>
+
     <style name="Theme.MathRush" parent="android:Theme.Material.NoActionBar">
         <item name="android:windowBackground">@color/math_background</item>
     </style>

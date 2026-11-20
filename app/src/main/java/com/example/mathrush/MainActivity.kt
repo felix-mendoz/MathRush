@@ -15,53 +15,57 @@ import com.example.mathrush.ui.theme.MathRushTheme
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
-
         installSplashScreen()
-
         super.onCreate(savedInstanceState)
         setContent {
             MathRushTheme {
-                var pantallaActual by remember { mutableStateOf("login") }
+                var pantallaActual by remember { mutableStateOf("splash") }
                 var finalScore by remember { mutableIntStateOf(0) }
 
-                Scaffold(
-                    modifier = Modifier.fillMaxSize(),
-                    containerColor = MaterialTheme.colorScheme.background
-                ) { innerPadding ->
-                    val modifier = Modifier.padding(innerPadding)
+                if (pantallaActual == "splash") {
+                    SplashScreen {
+                        pantallaActual = "login"
+                    }
+                } else {
+                    Scaffold(
+                        modifier = Modifier.fillMaxSize(),
+                        containerColor = MaterialTheme.colorScheme.background,
+                    ) { innerPadding ->
+                        val modifier = Modifier.padding(innerPadding)
 
-                    when (pantallaActual) {
-                        "login" -> LoginScreen(
-                            onLoginSuccess = { pantallaActual = "home" },
-                            onNavigateRegister = { pantallaActual = "register" }
-                        )
-                        "register" -> RegisterScreen(
-                            onRegisterSuccess = { pantallaActual = "home" },
-                            onBackToLogin = { pantallaActual = "login" }
-                        )
-                        "home" -> HomeScreen(
-                            modifier = modifier,
-                            onStartGameClick = { pantallaActual = "game" },
-                            onPracticeClick = { pantallaActual = "game" },
-                            onLeaderboardClick = { pantallaActual = "history" },
-                            onHelpClick = { /* Opcional: Ayuda */ },
-                            onMenuClick = { pantallaActual = "login" }
-                        )
-                        "game" -> GameScreen(
-                            onGameOver = { score ->
-                                finalScore = score
-                                pantallaActual = "result"
-                            },
-                            onBackToHome = { pantallaActual = "home" }
-                        )
-                        "result" -> ResultScreen(
-                            score = finalScore,
-                            onPlayAgain = { pantallaActual = "game" },
-                            onHomeClick = { pantallaActual = "home" }
-                        )
-                        "history" -> HistoryScreen(
-                            onBackToHome = { pantallaActual = "home" }
-                        )
+                        when (pantallaActual) {
+                            "login" -> LoginScreen(
+                                onLoginSuccess = { pantallaActual = "home" },
+                                onNavigateRegister = { pantallaActual = "register" },
+                            )
+                            "register" -> RegisterScreen(
+                                onRegisterSuccess = { pantallaActual = "home" },
+                                onBackToLogin = { pantallaActual = "login" },
+                            )
+                            "home" -> HomeScreen(
+                                modifier = modifier,
+                                onStartGameClick = { pantallaActual = "game" },
+                                onPracticeClick = { pantallaActual = "game" },
+                                onLeaderboardClick = { pantallaActual = "history" },
+                                onHelpClick = { /* Opcional: Ayuda */ },
+                                onMenuClick = { pantallaActual = "login" },
+                            )
+                            "game" -> GameScreen(
+                                onGameOver = { score ->
+                                    finalScore = score
+                                    pantallaActual = "result"
+                                },
+                                onBackToHome = { pantallaActual = "home" },
+                            )
+                            "result" -> ResultScreen(
+                                score = finalScore,
+                                onPlayAgain = { pantallaActual = "game" },
+                                onHomeClick = { pantallaActual = "home" },
+                            )
+                            "history" -> HistoryScreen(
+                                onBackToHome = { pantallaActual = "home" },
+                            )
+                        }
                     }
                 }
             }
