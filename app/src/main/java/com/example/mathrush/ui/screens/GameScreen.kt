@@ -17,6 +17,7 @@ import com.example.mathrush.ui.theme.*
 
 @Composable
 fun GameScreen(
+    difficultyLevel: Int = 1,
     viewModel: GameViewModel = viewModel(),
     onGameOver: (score: Int) -> Unit,
     onBackToHome: () -> Unit,
@@ -24,7 +25,7 @@ fun GameScreen(
     val uiState by viewModel.uiState.collectAsState()
 
     LaunchedEffect(Unit) {
-        viewModel.startGame(difficultyLevel = 1)
+        viewModel.startGame(difficultyLevel = difficultyLevel)
     }
 
     LaunchedEffect(uiState.isGameOver) {
@@ -34,7 +35,10 @@ fun GameScreen(
     }
 
     Surface(
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier
+            .fillMaxSize()
+            .statusBarsPadding()
+            .navigationBarsPadding(),
         color = MaterialTheme.colorScheme.background
     ) {
         Column(

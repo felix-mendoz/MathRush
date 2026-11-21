@@ -25,10 +25,10 @@ class MainActivity : ComponentActivity() {
                 val authRepo = remember { AuthRepository() }
                 var pantallaActual by remember { mutableStateOf("splash") }
                 var finalScore by remember { mutableIntStateOf(0) }
+                var selectedDifficulty by remember { mutableIntStateOf(1) }
 
                 if (pantallaActual == "splash") {
                     SplashScreen {
-                        // Si hay usuario autenticado, ir directo al home, sino permitir offline/login
                         pantallaActual = "home"
                     }
                 } else {
@@ -58,13 +58,20 @@ class MainActivity : ComponentActivity() {
                             )
                             "home" -> HomeScreen(
                                 modifier = modifier,
-                                onStartGameClick = { pantallaActual = "game" },
-                                onPracticeClick = { pantallaActual = "game" },
+                                onStartGameClick = { difficulty ->
+                                    selectedDifficulty = difficulty
+                                    pantallaActual = "game"
+                                },
+                                onPracticeClick = {
+                                    selectedDifficulty = 1
+                                    pantallaActual = "game"
+                                },
                                 onLeaderboardClick = { pantallaActual = "leaderboard" },
-                                onHelpClick = { pantallaActual = "profile" },
-                                onMenuClick = { pantallaActual = "login" },
+                                onProfileClick = { pantallaActual = "profile" },
+                                onLoginClick = { pantallaActual = "login" }
                             )
                             "game" -> GameScreen(
+                                difficultyLevel = selectedDifficulty,
                                 onGameOver = { score ->
                                     finalScore = score
                                     pantallaActual = "result"

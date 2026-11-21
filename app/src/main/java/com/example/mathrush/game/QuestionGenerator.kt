@@ -38,88 +38,48 @@ object QuestionGenerator {
     }
 
     private fun generateArithmetic(difficulty: MathDifficulty): MathQuestion {
-        val subcategories = listOf("Operaciones básicas", "Porcentajes", "Potencias y Raíces")
-        val sub = subcategories.random()
-        return when (sub) {
-            "Porcentajes" -> {
-                val base = listOf(50, 100, 200, 300, 400, 500).random()
-                val pct = listOf(10, 20, 25, 50).random()
-                val ans = (base * pct) / 100
-                MathQuestion(
-                    questionText = "$pct% de $base = ?",
-                    correctAnswer = ans,
-                    category = MathCategory.ARITHMETIC,
-                    subcategory = "Porcentajes",
-                    difficulty = difficulty
-                )
-            }
-            "Potencias y Raíces" -> {
-                if (Random.nextBoolean()) {
-                    val base = Random.nextInt(2, 8)
-                    MathQuestion(
-                        questionText = "$base³ = ?",
-                        correctAnswer = base * base * base,
-                        category = MathCategory.ARITHMETIC,
-                        subcategory = "Potencias y Raíces",
-                        difficulty = difficulty
-                    )
-                } else {
-                    val root = Random.nextInt(2, 12)
-                    val sq = root * root
-                    MathQuestion(
-                        questionText = "√$sq = ?",
-                        correctAnswer = root,
-                        category = MathCategory.ARITHMETIC,
-                        subcategory = "Potencias y Raíces",
-                        difficulty = difficulty
-                    )
-                }
-            }
-            else -> {
-                val maxNum = when (difficulty) {
-                    MathDifficulty.EASY -> 20
-                    MathDifficulty.INTERMEDIATE -> 50
-                    MathDifficulty.ADVANCED -> 100
-                }
-                val ops = when (difficulty) {
-                    MathDifficulty.EASY -> listOf('+', '-')
-                    MathDifficulty.INTERMEDIATE -> listOf('+', '-', '×')
-                    MathDifficulty.ADVANCED -> listOf('+', '-', '×', '÷')
-                }
-                val op = ops.random()
-                var n1 = Random.nextInt(1, maxNum)
-                var n2 = Random.nextInt(1, maxNum)
-
-                if (op == '-' && n1 < n2) {
-                    val t = n1; n1 = n2; n2 = t
-                }
-                if (op == '×') {
-                    n1 = Random.nextInt(1, 12)
-                    n2 = Random.nextInt(1, 12)
-                }
-                if (op == '÷') {
-                    n2 = Random.nextInt(1, 10)
-                    val quotient = Random.nextInt(1, 12)
-                    n1 = n2 * quotient
-                }
-
-                val ans = when (op) {
-                    '+' -> n1 + n2
-                    '-' -> n1 - n2
-                    '×' -> n1 * n2
-                    '÷' -> n1 / n2
-                    else -> n1 + n2
-                }
-
-                MathQuestion(
-                    questionText = "$n1 $op $n2 = ?",
-                    correctAnswer = ans,
-                    category = MathCategory.ARITHMETIC,
-                    subcategory = "Operaciones básicas",
-                    difficulty = difficulty
-                )
-            }
+        val maxNum = when (difficulty) {
+            MathDifficulty.EASY -> 20
+            MathDifficulty.INTERMEDIATE -> 50
+            MathDifficulty.ADVANCED -> 100
         }
+        val ops = when (difficulty) {
+            MathDifficulty.EASY -> listOf('+', '-')
+            MathDifficulty.INTERMEDIATE -> listOf('+', '-', '×')
+            MathDifficulty.ADVANCED -> listOf('+', '-', '×', '÷')
+        }
+        val op = ops.random()
+        var n1 = Random.nextInt(1, maxNum)
+        var n2 = Random.nextInt(1, maxNum)
+
+        if (op == '-' && n1 < n2) {
+            val t = n1; n1 = n2; n2 = t
+        }
+        if (op == '×') {
+            n1 = Random.nextInt(1, 12)
+            n2 = Random.nextInt(1, 12)
+        }
+        if (op == '÷') {
+            n2 = Random.nextInt(1, 10)
+            val quotient = Random.nextInt(1, 12)
+            n1 = n2 * quotient
+        }
+
+        val ans = when (op) {
+            '+' -> n1 + n2
+            '-' -> n1 - n2
+            '×' -> n1 * n2
+            '÷' -> n1 / n2
+            else -> n1 + n2
+        }
+
+        return MathQuestion(
+            questionText = "$n1  $op  $n2  =  ?",
+            correctAnswer = ans,
+            category = MathCategory.ARITHMETIC,
+            subcategory = "Operaciones básicas",
+            difficulty = difficulty
+        )
     }
 
     private fun generateAlgebra(difficulty: MathDifficulty): MathQuestion {
@@ -129,7 +89,7 @@ object QuestionGenerator {
         val c = a * x + b
 
         return MathQuestion(
-            questionText = "${a}x + $b = $c\nHalla x:",
+            questionText = "${a}x  +  $b  =  $c\n[Halla el valor de x]",
             correctAnswer = x,
             category = MathCategory.ALGEBRA,
             subcategory = "Ecuaciones 1er grado",
@@ -139,11 +99,10 @@ object QuestionGenerator {
 
     private fun generateDifferential(difficulty: MathDifficulty): MathQuestion {
         val a = Random.nextInt(1, 5)
-        val n = Random.nextInt(2, 4)
-        val ans = a * n
+        val ans = 2 * a
 
         return MathQuestion(
-            questionText = "d/dx (${a}x^$n) en x = 1\n(Coeficiente derivado):",
+            questionText = "d/dx ( ${a}x² )  en x = 1\n[Coeficiente de la derivada]",
             correctAnswer = ans,
             category = MathCategory.DIFFERENTIAL_CALCULUS,
             subcategory = "Derivadas básicas",
@@ -157,12 +116,12 @@ object QuestionGenerator {
         val ans = (a / 2) * (upper * upper)
 
         return MathQuestion(
-            questionText = "∫₀^$upper (${a}x) dx\n(Valor exacto):",
+            questionText = "∫ ₀ᵘᵖᵖᵉʳ (${a}x) dx  [0 → $upper]\n[Valor exacto]",
             correctAnswer = ans,
             category = MathCategory.INTEGRAL_CALCULUS,
             subcategory = "Integrales definidas",
             difficulty = difficulty
-        )
+        ).copy(questionText = "∫ ₀^$upper  (${a}x) dx\n[Calcula la integral definida]")
     }
 
     private fun generateGeometry(difficulty: MathDifficulty): MathQuestion {
@@ -174,7 +133,7 @@ object QuestionGenerator {
         )
         val t = triples.random()
         return MathQuestion(
-            questionText = "Catetos: a=${t.first}, b=${t.second}\nHipotenusa c:",
+            questionText = "Teorema de Pitágoras\nCatetos: a = ${t.first}, b = ${t.second}\n[Halla la hipotenusa c]",
             correctAnswer = t.third,
             category = MathCategory.GEOMETRY_TRIGONOMETRY,
             subcategory = "Teorema de Pitágoras",

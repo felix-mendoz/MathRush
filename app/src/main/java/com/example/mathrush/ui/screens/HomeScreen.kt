@@ -1,75 +1,92 @@
 package com.example.mathrush.ui.screens
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.mathrush.R
+import com.example.mathrush.data.AuthRepository
 import com.example.mathrush.ui.theme.*
 
 @Composable
 fun HomeScreen(
     modifier: Modifier = Modifier,
-    onStartGameClick: () -> Unit,
+    onStartGameClick: (difficulty: Int) -> Unit,
     onPracticeClick: () -> Unit,
     onLeaderboardClick: () -> Unit,
-    onHelpClick: () -> Unit,
-    onMenuClick: () -> Unit,
+    onProfileClick: () -> Unit,
+    onLoginClick: () -> Unit,
 ) {
+    val authRepo = remember { AuthRepository() }
+    val currentUser = authRepo.currentUser
+    var selectedDifficulty by remember { mutableStateOf(1) } // 1: Fácil, 2: Intermedio, 3: Avanzado
+
     Surface(
-        modifier = modifier.fillMaxSize(),
+        modifier = modifier
+            .fillMaxSize()
+            .statusBarsPadding()
+            .navigationBarsPadding(),
         color = MaterialTheme.colorScheme.background
     ) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(24.dp),
+                .padding(20.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.SpaceBetween
         ) {
-            // --- TOP BAR ---
+            // --- TOP BAR (Account Status & Profile / Login) ---
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                IconButton(
-                    onClick = onHelpClick,
-                    modifier = Modifier
-                        .size(40.dp)
-                        .clip(CircleShape)
-                        .background(MathSurfaceCard)
+                Card(
+                    colors = CardDefaults.cardColors(containerColor = MathSurfaceCard),
+                    shape = RoundedCornerShape(12.dp)
                 ) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.outline_help),
-                        contentDescription = "Ayuda",
-                        tint = MathTextSecondary
-                    )
+                    Row(
+                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(6.dp)
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .size(8.dp)
+                                .clip(CircleShape)
+                                .background(if (currentUser != null) MathSuccess else MathCyan)
+                        )
+                        Text(
+                            text = if (currentUser != null) "Modo Online (${authRepo.currentUserEmail.ifEmpty { "Sincronizado" }})" else "Modo Local (Invitado)",
+                            style = MaterialTheme.typography.labelMedium,
+                            color = MathTextPrimary
+                        )
+                    }
                 }
-                IconButton(
-                    onClick = onMenuClick,
-                    modifier = Modifier
-                        .size(40.dp)
-                        .clip(CircleShape)
-                        .background(MathSurfaceCard)
+
+                Button(
+                    onClick = {
+                        if (currentUser != null) onProfileClick() else onLoginClick()
+                    },
+                    shape = RoundedCornerShape(12.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = MathPurple),
+                    contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp)
                 ) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.outline_menu),
-                        contentDescription = "Menú",
-                        tint = MathTextSecondary
+                    Text(
+                        text = if (currentUser != null) "Mi Perfil" else "Iniciar Sesión",
+                        style = MaterialTheme.typography.labelMedium,
+                        color = Color.White
                     )
                 }
             }
@@ -77,12 +94,11 @@ fun HomeScreen(
             // --- LOGO & TITLE ---
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(8.dp)
+                verticalArrangement = Arrangement.spacedBy(4.dp)
             ) {
-                // Icono decorativo
                 Box(
                     modifier = Modifier
-                        .size(64.dp)
+                        .size(56.dp)
                         .clip(RoundedCornerShape(16.dp))
                         .background(
                             Brush.linearGradient(
@@ -94,66 +110,78 @@ fun HomeScreen(
                     Text(
                         text = "+ ÷\n× =",
                         color = Color.White,
-                        fontSize = 18.sp,
+                        fontSize = 16.sp,
                         fontWeight = FontWeight.Bold,
-                        lineHeight = 18.sp,
+                        lineHeight = 16.sp,
                         textAlign = TextAlign.Center
                     )
                 }
 
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Text(
-                        text = "MATH",
-                        style = MaterialTheme.typography.headlineMedium,
-                        color = MathTextPrimary,
-                        letterSpacing = 2.sp
-                    )
-                    Text(
-                        text = "RUSH",
-                        style = MaterialTheme.typography.headlineMedium,
-                        color = MathTextPrimary,
-                        letterSpacing = 2.sp
-                    )
-                }
+                Text(
+                    text = "MATH RUSH",
+                    style = MaterialTheme.typography.headlineMedium,
+                    color = MathTextPrimary,
+                    letterSpacing = 2.sp,
+                    fontWeight = FontWeight.Bold
+                )
             }
 
-            // --- PLAYER PROFILE
-            Card(
+            // --- DIFFICULTY SELECTOR ---
+            Column(
                 modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(20.dp),
-                colors = CardDefaults.cardColors(containerColor = MathSurfaceCard),
-                elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
+                Text(
+                    text = "Selecciona la Dificultad",
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MathTextSecondary
+                )
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    Text(
-                        text = "Anthony966",
-                        style = MaterialTheme.typography.titleLarge,
-                        color = MathTextPrimary
+                    val difficulties = listOf(
+                        Triple(1, "Fácil", "15s / Básica"),
+                        Triple(2, "Intermedio", "10s / Estándar"),
+                        Triple(3, "Avanzado", "20s / Cálculo")
                     )
 
-                    Spacer(modifier = Modifier.height(16.dp))
-
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clip(RoundedCornerShape(12.dp))
-                            .background(MathSurfaceVariant)
-                            .padding(12.dp)
-                    ) {
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceAround
+                    for ((level, title, desc) in difficulties) {
+                        val isSelected = selectedDifficulty == level
+                        Card(
+                            onClick = { selectedDifficulty = level },
+                            modifier = Modifier
+                                .weight(1f)
+                                .height(68.dp),
+                            shape = RoundedCornerShape(14.dp),
+                            colors = CardDefaults.cardColors(
+                                containerColor = if (isSelected) MathPurple else MathSurfaceCard
+                            ),
+                            border = if (isSelected) BorderStroke(2.dp, MathCyan) else null
                         ) {
-                            StatItem(title = "Ranking Diario", value = "6 / 155")
-                            StatItem(title = "Ranking Semanal", value = "14 / 798")
-                            StatItem(title = "Ranking Global", value = "32 / 2798")
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .padding(8.dp),
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                verticalArrangement = Arrangement.Center
+                            ) {
+                                Text(
+                                    text = title,
+                                    style = MaterialTheme.typography.titleSmall,
+                                    color = if (isSelected) Color.White else MathTextPrimary,
+                                    fontWeight = FontWeight.Bold
+                                )
+                                Text(
+                                    text = desc,
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = if (isSelected) Color.White.copy(alpha = 0.9f) else MathTextSecondary,
+                                    fontSize = 9.sp,
+                                    maxLines = 1
+                                )
+                            }
                         }
                     }
                 }
@@ -162,18 +190,15 @@ fun HomeScreen(
             // --- ACTION BUTTONS ---
             Column(
                 modifier = Modifier.fillMaxWidth(),
-                verticalArrangement = Arrangement.spacedBy(16.dp)
+                verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                // Botón Principal
                 Button(
-                    onClick = onStartGameClick,
+                    onClick = { onStartGameClick(selectedDifficulty) },
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(64.dp),
+                        .height(60.dp),
                     shape = RoundedCornerShape(16.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = Color.Transparent
-                    ),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent),
                     contentPadding = PaddingValues(0.dp)
                 ) {
                     Box(
@@ -188,13 +213,13 @@ fun HomeScreen(
                     ) {
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
                             Text(
-                                text = "Modo desafío",
+                                text = "Iniciar Modo Desafío",
                                 style = MaterialTheme.typography.titleMedium,
                                 color = Color.White,
                                 fontWeight = FontWeight.Bold
                             )
                             Text(
-                                text = "Con tiempo limite y de vidas",
+                                text = "Puntuación, Combos y Récords",
                                 style = MaterialTheme.typography.labelMedium,
                                 color = Color.White.copy(alpha = 0.8f)
                             )
@@ -202,20 +227,17 @@ fun HomeScreen(
                     }
                 }
 
-                // Botones secundarios
                 Row(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(16.dp)
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     Button(
                         onClick = onPracticeClick,
                         modifier = Modifier
                             .weight(1f)
-                            .height(64.dp),
-                        shape = RoundedCornerShape(16.dp),
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = Color.Transparent
-                        ),
+                            .height(56.dp),
+                        shape = RoundedCornerShape(14.dp),
+                        colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent),
                         contentPadding = PaddingValues(0.dp)
                     ) {
                         Box(
@@ -228,24 +250,12 @@ fun HomeScreen(
                                 ),
                             contentAlignment = Alignment.Center
                         ) {
-                            Column(
-                                horizontalAlignment = Alignment.CenterHorizontally,
-                                modifier = Modifier.padding(horizontal = 4.dp)
-                            ) {
-                                Text(
-                                    text = "Modo practica",
-                                    style = MaterialTheme.typography.titleMedium,
-                                    color = Color.White,
-                                    fontWeight = FontWeight.Bold
-                                )
-                                Text(
-                                    text = "Aprende a jugar",
-                                    style = MaterialTheme.typography.labelMedium,
-                                    color = Color.White.copy(alpha = 0.8f),
-                                    fontSize = 11.sp,
-                                    maxLines = 1
-                                )
-                            }
+                            Text(
+                                text = "Modo Práctica",
+                                style = MaterialTheme.typography.titleSmall,
+                                color = Color.White,
+                                fontWeight = FontWeight.Bold
+                            )
                         }
                     }
 
@@ -253,11 +263,9 @@ fun HomeScreen(
                         onClick = onLeaderboardClick,
                         modifier = Modifier
                             .weight(1f)
-                            .height(64.dp),
-                        shape = RoundedCornerShape(16.dp),
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = Color.Transparent
-                        ),
+                            .height(56.dp),
+                        shape = RoundedCornerShape(14.dp),
+                        colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent),
                         contentPadding = PaddingValues(0.dp)
                     ) {
                         Box(
@@ -270,62 +278,16 @@ fun HomeScreen(
                                 ),
                             contentAlignment = Alignment.Center
                         ) {
-                            Column(
-                                horizontalAlignment = Alignment.CenterHorizontally,
-                                modifier = Modifier.padding(horizontal = 4.dp)
-                            ) {
-                                Text(
-                                    text = "Puntuaciones",
-                                    style = MaterialTheme.typography.titleMedium,
-                                    color = Color.White,
-                                    fontWeight = FontWeight.Bold
-                                )
-                                Text(
-                                    text = "Mira tu top 10",
-                                    style = MaterialTheme.typography.labelMedium,
-                                    color = Color.White.copy(alpha = 0.8f),
-                                    fontSize = 11.sp,
-                                    maxLines = 1
-                                )
-                            }
+                            Text(
+                                text = "Clasificación",
+                                style = MaterialTheme.typography.titleSmall,
+                                color = Color.White,
+                                fontWeight = FontWeight.Bold
+                            )
                         }
                     }
                 }
             }
-
-            Spacer(modifier = Modifier.height(8.dp))
         }
     }
-}
-
-@Composable
-fun StatItem(title: String, value: String) {
-    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        Text(
-            text = title,
-            style = MaterialTheme.typography.labelMedium,
-            color = MathTextSecondary,
-            fontSize = 10.sp
-        )
-        Spacer(modifier = Modifier.height(4.dp))
-        Text(
-            text = value,
-            style = MaterialTheme.typography.titleLarge,
-            color = MathTextPrimary,
-            fontSize = 14.sp,
-            fontWeight = FontWeight.Bold
-        )
-    }
-}
-
-@Preview
-@Composable
-fun PreviewHomeScreen() {
-    HomeScreen(
-        onStartGameClick = {},
-        onPracticeClick = {},
-        onLeaderboardClick = {},
-        onHelpClick = {},
-        onMenuClick = {},
-    )
 }
