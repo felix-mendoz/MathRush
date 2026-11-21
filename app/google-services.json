@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "774303580128",
+    "project_id": "mathrush-15586",
+    "storage_bucket": "mathrush-15586.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:774303580128:android:8945bc71051e3b337b7585",
+        "android_client_info": {
+          "package_name": "com.example.mathrush"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAV-COMC_aiXXaSg3Oyh2fvt7H-sBbqvtc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

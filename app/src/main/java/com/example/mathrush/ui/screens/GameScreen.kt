@@ -78,6 +78,29 @@ fun GameScreen(
                 }
             }
 
+            // --- COMBO MULTIPLIER BADGE ---
+            if (uiState.comboMultiplier > 1) {
+                Card(
+                    colors = CardDefaults.cardColors(
+                        containerColor = when {
+                            uiState.comboMultiplier >= 5 -> MathPurple
+                            uiState.comboMultiplier >= 3 -> MathCyanDark
+                            else -> MathSurfaceVariant
+                        }
+                    ),
+                    shape = RoundedCornerShape(12.dp)
+                ) {
+                    Text(
+                        text = " 🔥 COMBO x${uiState.comboMultiplier} (Streak: ${uiState.streak}) ",
+                        style = MaterialTheme.typography.titleSmall,
+                        color = Color.White,
+                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 6.dp)
+                    )
+                }
+            } else {
+                Spacer(modifier = Modifier.height(28.dp))
+            }
+
             // --- TIMER BAR ---
             Column(
                 modifier = Modifier.fillMaxWidth(),
@@ -116,10 +139,11 @@ fun GameScreen(
                     val q = uiState.currentQuestion
                     if (q != null) {
                         Text(
-                            text = "${q.num1} ${q.operation} ${q.num2} = ?",
-                            style = MaterialTheme.typography.displayMedium,
+                            text = q.questionText,
+                            style = MaterialTheme.typography.headlineMedium,
                             color = MathTextPrimary,
-                            textAlign = TextAlign.Center
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier.padding(16.dp)
                         )
                     } else {
                         CircularProgressIndicator(color = MathCyan)
