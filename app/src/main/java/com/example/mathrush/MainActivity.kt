@@ -13,19 +13,25 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import com.example.mathrush.data.AuthRepository
+import com.example.mathrush.game.PracticeReport
 import com.example.mathrush.ui.screens.*
 import com.example.mathrush.ui.theme.MathRushTheme
+import com.google.firebase.FirebaseApp
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         installSplashScreen()
         super.onCreate(savedInstanceState)
+        FirebaseApp.initializeApp(this)
+
         setContent {
             MathRushTheme {
                 val authRepo = remember { AuthRepository() }
                 var pantallaActual by remember { mutableStateOf("splash") }
                 var finalScore by remember { mutableIntStateOf(0) }
                 var selectedDifficulty by remember { mutableIntStateOf(1) }
+                var isPracticeMode by remember { mutableStateOf(false) }
+                var currentPracticeReport by remember { mutableStateOf<PracticeReport?>(null) }
 
                 if (pantallaActual == "splash") {
                     SplashScreen {
@@ -60,21 +66,30 @@ class MainActivity : ComponentActivity() {
                                 modifier = modifier,
                                 onStartGameClick = { difficulty ->
                                     selectedDifficulty = difficulty
+                                    isPracticeMode = false
                                     pantallaActual = "game"
                                 },
-                                onPracticeClick = {
-                                    selectedDifficulty = 1
+                                onPracticeClick = { difficulty ->
+                                    selectedDifficulty = difficulty
+                                    isPracticeMode = true
                                     pantallaActual = "game"
                                 },
                                 onLeaderboardClick = { pantallaActual = "leaderboard" },
                                 onProfileClick = { pantallaActual = "profile" },
-                                onLoginClick = { pantallaActual = "login" }
+                                onLoginClick = { pantallaActual = "login" },
+                                onHistoryClick = { pantallaActual = "history" }
                             )
                             "game" -> GameScreen(
                                 difficultyLevel = selectedDifficulty,
-                                onGameOver = { score ->
-                                    finalScore = score
-                                    pantallaActual = "result"
+                                isPracticeMode = isPracticeMode,
+                                onGameOver = { score, report ->
+                                    if (isPracticeMode && report != null) {
+                                        currentPracticeReport = report
+                                        pantallaActual = "practice_report"
+                                    } else {
+                                        finalScore = score
+                                        pantallaActual = "result"
+                                    }
                                 },
                                 onBackToHome = { pantallaActual = "home" },
                             )
@@ -86,6 +101,24 @@ class MainActivity : ComponentActivity() {
                             "history" -> HistoryScreen(
                                 onBackToHome = { pantallaActual = "home" },
                             )
+                            "practice_report" -> {
+                                if (currentPracticeReport != null) {
+                                    PracticeReportScreen(
+                                        report = currentPracticeReport!!,
+                                        onBackHome = { pantallaActual = "home" }
+                                    )
+                                } else {
+                                    HomeScreen(
+                                        modifier = modifier,
+                                        onStartGameClick = { diff -> selectedDifficulty = diff; isPracticeMode = false; pantallaActual = "game" },
+                                        onPracticeClick = { diff -> selectedDifficulty = diff; isPracticeMode = true; pantallaActual = "game" },
+                                        onLeaderboardClick = { pantallaActual = "leaderboard" },
+                                        onProfileClick = { pantallaActual = "profile" },
+                                        onLoginClick = { pantallaActual = "login" },
+                                        onHistoryClick = { pantallaActual = "history" }
+                                    )
+                                }
+                            }
                         }
                     }
                 }

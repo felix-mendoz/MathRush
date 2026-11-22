@@ -3,6 +3,7 @@ package com.example.mathrush.game
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.mathrush.data.AuthRepository
 import com.example.mathrush.data.ScoreRepository
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -24,29 +25,48 @@ data class GameUiState(
     val comboMultiplier: Int = 1,
     val isGameOver: Boolean = false,
     val difficulty: Int = 1,
-    val userInput: String = ""
+    val userInput: String = "",
+    val isPracticeMode: Boolean = false,
+    val practiceQuestionsAnswered: Int = 0,
+    val practiceReport: PracticeReport? = null
 )
 
 class GameViewModel(application: Application) : AndroidViewModel(application) {
 
     private val scoreRepository = ScoreRepository(application)
     private val audioManager = AudioManager()
+    private val practiceSessionManager = PracticeSessionManager()
 
     private val _uiState = MutableStateFlow(GameUiState())
     val uiState: StateFlow<GameUiState> = _uiState.asStateFlow()
 
     private var timerJob: Job? = null
+    private var questionStartTime: Long = 0
 
-    fun startGame(difficultyLevel: Int = 1) {
+    fun startGame(difficultyLevel: Int = 1, practiceMode: Boolean = false) {
         val diff = when (difficultyLevel) {
             1 -> MathDifficulty.EASY
             2 -> MathDifficulty.INTERMEDIATE
             else -> MathDifficulty.ADVANCED
         }
+        timerJob?.cancel()
+        practiceSessionManager.reset()
+        questionStartTime = System.currentTimeMillis()
+
         _uiState.value = GameUiState(
             difficulty = difficultyLevel,
             maxTimePerQuestion = diff.defaultTimeSeconds,
             timeLeft = diff.defaultTimeSeconds,
+            lives = 3,
+            score = 0,
+            streak = 0,
+            maxCombo = 0,
+            comboMultiplier = 1,
+            isGameOver = false,
+            userInput = "",
+            isPracticeMode = practiceMode,
+            practiceQuestionsAnswered = 0,
+            practiceReport = null,
             currentQuestion = QuestionGenerator.generateQuestion(null, diff)
         )
         startTimer()
@@ -54,6 +74,7 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
 
     private fun startTimer() {
         timerJob?.cancel()
+        questionStartTime = System.currentTimeMillis()
         timerJob = viewModelScope.launch {
             while (true) {
                 delay(1000.milliseconds)
@@ -63,7 +84,16 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
                 if (currentState.timeLeft > 1) {
                     _uiState.update { it.copy(timeLeft = it.timeLeft - 1) }
                 } else {
-                    handleIncorrectAnswer()
+                    if (currentState.isPracticeMode) {
+                        val q = currentState.currentQuestion
+                        if (q != null) {
+                            val timeSpent = ((System.currentTimeMillis() - questionStartTime) / 1000).toInt()
+                            practiceSessionManager.recordAnswer(q, null, timeSpent)
+                        }
+                        advancePracticeOrFinish()
+                    } else {
+                        handleIncorrectAnswer()
+                    }
                 }
             }
         }
@@ -86,12 +116,70 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
         val state = _uiState.value
         if (state.isGameOver || state.currentQuestion == null) return
 
-        val isCorrect = state.currentQuestion.correctAnswer.validate(state.userInput)
+        val userAnswer = state.userInput
+        val q = state.currentQuestion
+        val isCorrect = q.correctAnswer.validate(userAnswer)
+        val timeSpent = ((System.currentTimeMillis() - questionStartTime) / 1000).toInt()
 
-        if (isCorrect) {
-            handleCorrectAnswer()
+        if (state.isPracticeMode) {
+            practiceSessionManager.recordAnswer(q, userAnswer.ifEmpty { null }, timeSpent)
+            if (isCorrect) {
+                audioManager.playCorrectSound()
+            } else {
+                audioManager.playIncorrectSound()
+            }
+            advancePracticeOrFinish()
         } else {
-            handleIncorrectAnswer()
+            if (isCorrect) {
+                handleCorrectAnswer()
+            } else {
+                handleIncorrectAnswer()
+            }
+        }
+    }
+
+    private fun advancePracticeOrFinish() {
+        val state = _uiState.value
+        val answeredCount = state.practiceQuestionsAnswered + 1
+        if (answeredCount >= 10) {
+            timerJob?.cancel()
+            val report = practiceSessionManager.generateReport()
+            _uiState.update {
+                it.copy(
+                    isGameOver = true,
+                    practiceReport = report,
+                    userInput = ""
+                )
+            }
+        } else {
+            val diffEnum = when (state.difficulty) {
+                1 -> MathDifficulty.EASY
+                2 -> MathDifficulty.INTERMEDIATE
+                else -> MathDifficulty.ADVANCED
+            }
+            questionStartTime = System.currentTimeMillis()
+            _uiState.update {
+                it.copy(
+                    practiceQuestionsAnswered = answeredCount,
+                    userInput = "",
+                    timeLeft = diffEnum.defaultTimeSeconds,
+                    maxTimePerQuestion = diffEnum.defaultTimeSeconds,
+                    currentQuestion = QuestionGenerator.generateQuestion(null, diffEnum)
+                )
+            }
+            startTimer()
+        }
+    }
+
+    fun finishPracticeEarly() {
+        timerJob?.cancel()
+        val report = practiceSessionManager.generateReport()
+        _uiState.update {
+            it.copy(
+                isGameOver = true,
+                practiceReport = report,
+                userInput = ""
+            )
         }
     }
 
@@ -125,6 +213,7 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
             else -> MathDifficulty.ADVANCED
         }
 
+        questionStartTime = System.currentTimeMillis()
         _uiState.update {
             it.copy(
                 score = newScore,
@@ -155,13 +244,14 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
         if (remainingLives <= 0) {
             audioManager.playGameOverSound()
             scoreRepository.saveScore(
-                username = "Anthony966",
+                username = authRepositoryUsername(),
                 score = state.score,
                 maxCombo = state.maxCombo,
                 difficulty = state.difficulty
             )
             _uiState.update { it.copy(lives = 0, isGameOver = true, userInput = "") }
         } else {
+            questionStartTime = System.currentTimeMillis()
             _uiState.update {
                 it.copy(
                     lives = remainingLives,
@@ -174,6 +264,15 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
                 )
             }
             startTimer()
+        }
+    }
+
+    private fun authRepositoryUsername(): String {
+        return try {
+            val authRepo = AuthRepository()
+            authRepo.currentUserName
+        } catch (_: Exception) {
+            "Anthony966"
         }
     }
 

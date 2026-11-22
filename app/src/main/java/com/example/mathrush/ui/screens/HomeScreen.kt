@@ -5,7 +5,6 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -25,20 +24,20 @@ import com.example.mathrush.ui.theme.*
 fun HomeScreen(
     modifier: Modifier = Modifier,
     onStartGameClick: (difficulty: Int) -> Unit,
-    onPracticeClick: () -> Unit,
+    onPracticeClick: (difficulty: Int) -> Unit,
     onLeaderboardClick: () -> Unit,
     onProfileClick: () -> Unit,
     onLoginClick: () -> Unit,
+    onHistoryClick: () -> Unit
 ) {
     val authRepo = remember { AuthRepository() }
     val currentUser = authRepo.currentUser
     var selectedDifficulty by remember { mutableStateOf(1) } // 1: Fácil, 2: Intermedio, 3: Avanzado
 
-    // Animación de fondo al cambiar de dificultad
     val targetBgColor = when (selectedDifficulty) {
-        1 -> Color(0xFF082522) // Verde/Cian suave para fácil
-        2 -> Color(0xFF1B2340) // Púrpura para intermedio
-        else -> Color(0xFF321422) // Rosado/Rojo para avanzado
+        1 -> Color(0xFF082522)
+        2 -> Color(0xFF1B2340)
+        else -> Color(0xFF321422)
     }
     val animatedBgColor by animateColorAsState(
         targetValue = targetBgColor,
@@ -60,45 +59,22 @@ fun HomeScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.SpaceBetween
         ) {
-            // --- TOP BAR (Account Status & Profile / Login) ---
+            // --- TOP BAR (Only Profile / Login button, no online status badge) ---
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
+                horizontalArrangement = Arrangement.End,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Card(
-                    colors = CardDefaults.cardColors(containerColor = MathSurfaceCard),
-                    shape = RoundedCornerShape(12.dp)
-                ) {
-                    Row(
-                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(6.dp)
-                    ) {
-                        Box(
-                            modifier = Modifier
-                                .size(8.dp)
-                                .clip(CircleShape)
-                                .background(if (currentUser != null) MathSuccess else MathCyan)
-                        )
-                        Text(
-                            text = if (currentUser != null) "Modo Online (${authRepo.currentUserEmail.ifEmpty { "Sincronizado" }})" else "Modo Local (Invitado)",
-                            style = MaterialTheme.typography.labelMedium,
-                            color = MathTextPrimary
-                        )
-                    }
-                }
-
                 Button(
                     onClick = {
                         if (currentUser != null) onProfileClick() else onLoginClick()
                     },
                     shape = RoundedCornerShape(12.dp),
                     colors = ButtonDefaults.buttonColors(containerColor = MathPurple),
-                    contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp)
+                    contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp)
                 ) {
                     Text(
-                        text = if (currentUser != null) "Mi Perfil" else "Iniciar Sesión",
+                        text = if (currentUser != null) "Mi Perfil (${authRepo.currentUserName})" else "Iniciar Sesión",
                         style = MaterialTheme.typography.labelMedium,
                         color = Color.White
                     )
@@ -200,16 +176,15 @@ fun HomeScreen(
                     }
                 }
 
-                // Tooltip / Description Card for Selected Difficulty
                 Card(
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(12.dp),
                     colors = CardDefaults.cardColors(containerColor = MathSurfaceCard)
                 ) {
                     val tooltipText = when (selectedDifficulty) {
-                        1 -> "Fácil: 15s por pregunta • Solo operaciones aritméticas básicas (+, -, ×, ÷) • Multiplicador: 1.0x"
-                        2 -> "Intermedio: 10s por pregunta • Incluye Aritmética y Álgebra (ecuaciones) • Multiplicador: 1.5x"
-                        else -> "Avanzado: 20s por pregunta • Todas las categorías: Cálculo diferencial, integral, álgebra y geometría • Multiplicador: 2.0x"
+                        1 -> "Fácil: 20s por pregunta • Aritmética básica y geometría elemental • Multiplicador: 1.0x"
+                        2 -> "Intermedio: 15s por pregunta • Aritmética, Álgebra y Pitágoras • Multiplicador: 1.5x"
+                        else -> "Avanzado: 25s por pregunta • Álgebra, Cálculo integral y Trigonometría avanzada • Multiplicador: 2.0x"
                     }
                     Text(
                         text = tooltipText,
@@ -224,13 +199,13 @@ fun HomeScreen(
             // --- ACTION BUTTONS ---
             Column(
                 modifier = Modifier.fillMaxWidth(),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
+                verticalArrangement = Arrangement.spacedBy(10.dp)
             ) {
                 Button(
                     onClick = { onStartGameClick(selectedDifficulty) },
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(60.dp),
+                        .height(56.dp),
                     shape = RoundedCornerShape(16.dp),
                     colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent),
                     contentPadding = PaddingValues(0.dp)
@@ -252,24 +227,19 @@ fun HomeScreen(
                                 color = Color.White,
                                 fontWeight = FontWeight.Bold
                             )
-                            Text(
-                                text = "Puntuación, Combos y Multiplicador",
-                                style = MaterialTheme.typography.labelMedium,
-                                color = Color.White.copy(alpha = 0.8f)
-                            )
                         }
                     }
                 }
 
                 Row(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     Button(
-                        onClick = onPracticeClick,
+                        onClick = { onPracticeClick(selectedDifficulty) },
                         modifier = Modifier
                             .weight(1f)
-                            .height(56.dp),
+                            .height(50.dp),
                         shape = RoundedCornerShape(14.dp),
                         colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent),
                         contentPadding = PaddingValues(0.dp)
@@ -297,7 +267,7 @@ fun HomeScreen(
                         onClick = onLeaderboardClick,
                         modifier = Modifier
                             .weight(1f)
-                            .height(56.dp),
+                            .height(50.dp),
                         shape = RoundedCornerShape(14.dp),
                         colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent),
                         contentPadding = PaddingValues(0.dp)
@@ -320,6 +290,22 @@ fun HomeScreen(
                             )
                         }
                     }
+                }
+
+                Button(
+                    onClick = onHistoryClick,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(48.dp),
+                    shape = RoundedCornerShape(14.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = MathSurfaceCard)
+                ) {
+                    Text(
+                        text = "Historial y Récords Locales",
+                        style = MaterialTheme.typography.titleSmall,
+                        color = MathCyan,
+                        fontWeight = FontWeight.Bold
+                    )
                 }
             }
         }

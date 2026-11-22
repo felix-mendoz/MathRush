@@ -13,25 +13,27 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.mathrush.game.GameViewModel
+import com.example.mathrush.game.PracticeReport
 import com.example.mathrush.ui.components.MathView
 import com.example.mathrush.ui.theme.*
 
 @Composable
 fun GameScreen(
     difficultyLevel: Int = 1,
+    isPracticeMode: Boolean = false,
     viewModel: GameViewModel = viewModel(),
-    onGameOver: (score: Int) -> Unit,
+    onGameOver: (score: Int, report: PracticeReport?) -> Unit,
     onBackToHome: () -> Unit,
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
     LaunchedEffect(Unit) {
-        viewModel.startGame(difficultyLevel = difficultyLevel)
+        viewModel.startGame(difficultyLevel = difficultyLevel, practiceMode = isPracticeMode)
     }
 
     LaunchedEffect(uiState.isGameOver) {
         if (uiState.isGameOver) {
-            onGameOver(uiState.score)
+            onGameOver(uiState.score, uiState.practiceReport)
         }
     }
 
@@ -49,7 +51,7 @@ fun GameScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.SpaceBetween
         ) {
-            // --- TOP BAR (Lives, Score, Timer) ---
+            // --- TOP BAR ---
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -59,32 +61,50 @@ fun GameScreen(
                     Text(text = "←", color = MathTextSecondary, style = MaterialTheme.typography.headlineMedium)
                 }
 
-                // Vidas (Corazones)
-                Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-                    repeat(3) { index ->
+                if (uiState.isPracticeMode) {
+                    Card(
+                        colors = CardDefaults.cardColors(containerColor = MathSurfaceCard),
+                        shape = RoundedCornerShape(12.dp)
+                    ) {
                         Text(
-                            text = if (index < uiState.lives) "❤️" else "🖤",
-                            fontSize = 18.sp
+                            text = " 📝 Práctica ${uiState.practiceQuestionsAnswered + 1}/10 ",
+                            style = MaterialTheme.typography.titleSmall,
+                            color = MathCyan,
+                            modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp)
                         )
+                    }
+                } else {
+                    Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                        repeat(3) { index ->
+                            Text(
+                                text = if (index < uiState.lives) "❤️" else "🖤",
+                                fontSize = 18.sp
+                            )
+                        }
                     }
                 }
 
-                // Puntuación
-                Card(
-                    colors = CardDefaults.cardColors(containerColor = MathSurfaceCard),
-                    shape = RoundedCornerShape(12.dp)
-                ) {
-                    Text(
-                        text = " Pts: ${uiState.score} ",
-                        style = MaterialTheme.typography.titleMedium,
-                        color = MathCyan,
-                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp)
-                    )
+                if (uiState.isPracticeMode) {
+                    TextButton(onClick = { viewModel.finishPracticeEarly() }) {
+                        Text("Ver Reporte", color = MathError)
+                    }
+                } else {
+                    Card(
+                        colors = CardDefaults.cardColors(containerColor = MathSurfaceCard),
+                        shape = RoundedCornerShape(12.dp)
+                    ) {
+                        Text(
+                            text = " Pts: ${uiState.score} ",
+                            style = MaterialTheme.typography.titleMedium,
+                            color = MathCyan,
+                            modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp)
+                        )
+                    }
                 }
             }
 
             // --- COMBO MULTIPLIER BADGE ---
-            if (uiState.comboMultiplier > 1) {
+            if (!uiState.isPracticeMode && uiState.comboMultiplier > 1) {
                 Card(
                     colors = CardDefaults.cardColors(
                         containerColor = when {
@@ -146,7 +166,6 @@ fun GameScreen(
                 ) {
                     val q = uiState.currentQuestion
                     if (q != null) {
-                        // Category & Subcategory chip
                         Text(
                             text = "${q.category.title} • ${q.subcategory}",
                             style = MaterialTheme.typography.labelSmall,
@@ -201,7 +220,7 @@ fun GameScreen(
                 }
             }
 
-            // --- EXTENDED NUMBER KEYPAD (Digits, -, ., /, ⌫, ✓) ---
+            // --- EXTENDED NUMBER KEYPAD ---
             Column(
                 modifier = Modifier.fillMaxWidth(),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
@@ -228,7 +247,7 @@ fun GameScreen(
                                     }
                                 },
                                 modifier = Modifier
-                                    .weight(if (row.size == 4) 1f else if (key == "0" || key == "⌫" || key == "✓") 1.33f else 1f)
+                                    .weight(1f)
                                     .height(52.dp),
                                 shape = RoundedCornerShape(12.dp),
                                 colors = ButtonDefaults.buttonColors(

@@ -26,6 +26,7 @@ fun RegisterScreen(
 ) {
     val authRepo = remember { AuthRepository() }
     val coroutineScope = rememberCoroutineScope()
+    var username by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var isLoading by remember { mutableStateOf(false) }
@@ -94,6 +95,21 @@ fun RegisterScreen(
                     }
 
                     OutlinedTextField(
+                        value = username,
+                        onValueChange = { username = it },
+                        label = { Text("Nombre de usuario", color = MathTextSecondary) },
+                        modifier = Modifier.fillMaxWidth(),
+                        singleLine = true,
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = MathPurple,
+                            unfocusedBorderColor = MathOutline,
+                            focusedTextColor = MathTextPrimary,
+                            unfocusedTextColor = MathTextPrimary
+                        ),
+                        shape = RoundedCornerShape(12.dp)
+                    )
+
+                    OutlinedTextField(
                         value = email,
                         onValueChange = { email = it },
                         label = { Text("Correo electrónico", color = MathTextSecondary) },
@@ -128,14 +144,14 @@ fun RegisterScreen(
 
                     Button(
                         onClick = {
-                            if (email.isBlank() || password.length < 6) {
-                                errorMessage = "Ingresa un correo válido y contraseña de al menos 6 caracteres"
+                            if (username.isBlank() || email.isBlank() || password.length < 6) {
+                                errorMessage = "Ingresa nombre, correo válido y contraseña de al menos 6 caracteres"
                                 return@Button
                             }
                             coroutineScope.launch {
                                 isLoading = true
                                 errorMessage = null
-                                val result = authRepo.signUp(email.trim(), password)
+                                val result = authRepo.signUp(email.trim(), password, username.trim())
                                 isLoading = false
                                 if (result.isSuccess) {
                                     onRegisterSuccess()

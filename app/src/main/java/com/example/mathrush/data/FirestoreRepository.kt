@@ -18,7 +18,6 @@ data class LeaderboardItem(
 class FirestoreRepository {
     private val firestore = FirebaseFirestore.getInstance()
     private val scoresCollection = firestore.collection("scores")
-    private val usersCollection = firestore.collection("users")
 
     suspend fun saveScore(scoreEntity: ScoreEntity): Result<Unit> {
         return try {
@@ -45,7 +44,6 @@ class FirestoreRepository {
         return try {
             val snapshot = scoresCollection
                 .orderBy("score", Query.Direction.DESCENDING)
-                .orderBy("timestamp", Query.Direction.DESCENDING)
                 .limit(limit)
                 .get()
                 .await()

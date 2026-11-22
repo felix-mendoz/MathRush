@@ -90,7 +90,7 @@ object QuestionGenerator {
         val selectedCategory = category ?: when (difficulty) {
             MathDifficulty.EASY -> MathCategory.ARITHMETIC
             MathDifficulty.INTERMEDIATE -> listOf(MathCategory.ARITHMETIC, MathCategory.ALGEBRA, MathCategory.GEOMETRY_TRIGONOMETRY).random()
-            MathDifficulty.ADVANCED -> MathCategory.entries.random()
+            MathDifficulty.ADVANCED -> listOf(MathCategory.ARITHMETIC, MathCategory.ALGEBRA, MathCategory.INTEGRAL_CALCULUS, MathCategory.GEOMETRY_TRIGONOMETRY).random()
         }
 
         val generator: QuestionGeneratorStrategy = when (selectedCategory) {
