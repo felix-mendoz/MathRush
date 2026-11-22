@@ -73,7 +73,7 @@ fun GameScreen(
                         shape = RoundedCornerShape(12.dp)
                     ) {
                         Text(
-                            text = " 📝 Práctica ${uiState.practiceQuestionsAnswered + 1}/10 ",
+                            text = "Práctica ${uiState.practiceQuestionsAnswered + 1}/10 ",
                             style = MaterialTheme.typography.titleSmall,
                             color = MathCyan,
                             modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp)

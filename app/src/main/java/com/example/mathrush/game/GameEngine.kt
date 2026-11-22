@@ -299,7 +299,6 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     override fun onCleared() {
-        super.onCleared()
         timerJob?.cancel()
         audioManager.release()
     }
