@@ -207,9 +207,9 @@ fun HomeScreen(
                     colors = CardDefaults.cardColors(containerColor = MathSurfaceCard)
                 ) {
                     val tooltipText = when (selectedDifficulty) {
-                        1 -> "💡 Fácil: 15s por pregunta • Solo operaciones aritméticas básicas (+, -, ×, ÷) • Multiplicador: 1.0x"
-                        2 -> "💡 Intermedio: 10s por pregunta • Incluye Aritmética y Álgebra (ecuaciones) • Multiplicador: 1.5x"
-                        else -> "💡 Avanzado: 20s por pregunta • Todas las categorías: Cálculo diferencial, integral, álgebra y geometría • Multiplicador: 2.0x"
+                        1 -> "Fácil: 15s por pregunta • Solo operaciones aritméticas básicas (+, -, ×, ÷) • Multiplicador: 1.0x"
+                        2 -> "Intermedio: 10s por pregunta • Incluye Aritmética y Álgebra (ecuaciones) • Multiplicador: 1.5x"
+                        else -> "Avanzado: 20s por pregunta • Todas las categorías: Cálculo diferencial, integral, álgebra y geometría • Multiplicador: 2.0x"
                     }
                     Text(
                         text = tooltipText,
