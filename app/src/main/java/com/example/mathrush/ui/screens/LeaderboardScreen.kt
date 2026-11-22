@@ -43,31 +43,46 @@ fun LeaderboardScreen(
     }
 
     Surface(
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier
+            .fillMaxSize()
+            .statusBarsPadding()
+            .navigationBarsPadding(),
         color = MaterialTheme.colorScheme.background
     ) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(16.dp)
+                .padding(20.dp)
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(
-                    text = "Clasificación Global",
-                    style = MaterialTheme.typography.headlineMedium,
-                    color = MathTextPrimary,
-                    fontWeight = FontWeight.Bold
-                )
-                TextButton(onClick = onBackHome) {
-                    Text("Volver", color = MathCyan)
+                Column {
+                    Text(
+                        text = "Clasificación Global",
+                        style = MaterialTheme.typography.headlineMedium,
+                        color = MathTextPrimary,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Text(
+                        text = "Mejores puntajes de la comunidad",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MathTextSecondary
+                    )
+                }
+                Button(
+                    onClick = onBackHome,
+                    shape = RoundedCornerShape(12.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = MathPurple),
+                    contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp)
+                ) {
+                    Text("Volver", color = Color.White, fontWeight = FontWeight.Bold)
                 }
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(20.dp))
 
             when {
                 isLoading -> {
@@ -105,13 +120,21 @@ fun LeaderboardScreen(
                 else -> {
                     LazyColumn(
                         modifier = Modifier.fillMaxSize(),
-                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                        verticalArrangement = Arrangement.spacedBy(10.dp)
                     ) {
                         itemsIndexed(leaderboardItems) { index, item ->
+                            val rankColor = when (index) {
+                                0 -> Color(0xFFFFD700) // Oro
+                                1 -> Color(0xFFC0C0C0) // Plata
+                                2 -> Color(0xFFCD7F32) // Bronce
+                                else -> MathSurfaceVariant
+                            }
+
                             Card(
                                 modifier = Modifier.fillMaxWidth(),
-                                shape = RoundedCornerShape(14.dp),
-                                colors = CardDefaults.cardColors(containerColor = MathSurfaceCard)
+                                shape = RoundedCornerShape(16.dp),
+                                colors = CardDefaults.cardColors(containerColor = MathSurfaceCard),
+                                elevation = CardDefaults.cardElevation(defaultElevation = if (index < 3) 4.dp else 1.dp)
                             ) {
                                 Row(
                                     modifier = Modifier
@@ -120,18 +143,23 @@ fun LeaderboardScreen(
                                     horizontalArrangement = Arrangement.SpaceBetween,
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
-                                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                                        Text(
-                                            text = "#${index + 1}",
-                                            style = MaterialTheme.typography.titleMedium,
-                                            color = when (index) {
-                                                0 -> Color(0xFFFFD700)
-                                                1 -> Color(0xFFC0C0C0)
-                                                2 -> Color(0xFFCD7F32)
-                                                else -> MathTextSecondary
-                                            },
-                                            fontWeight = FontWeight.Bold
-                                        )
+                                    Row(
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        horizontalArrangement = Arrangement.spacedBy(16.dp)
+                                    ) {
+                                        Surface(
+                                            shape = RoundedCornerShape(10.dp),
+                                            color = rankColor.copy(alpha = 0.2f)
+                                        ) {
+                                            Text(
+                                                text = "#${index + 1}",
+                                                style = MaterialTheme.typography.titleMedium,
+                                                color = rankColor,
+                                                fontWeight = FontWeight.Bold,
+                                                modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp)
+                                            )
+                                        }
+
                                         Column {
                                             Text(
                                                 text = item.username,
@@ -140,12 +168,13 @@ fun LeaderboardScreen(
                                                 fontWeight = FontWeight.Bold
                                             )
                                             Text(
-                                                text = "${item.category} • Dificultad ${item.difficulty}",
+                                                text = item.category.ifEmpty { "Matemáticas" },
                                                 style = MaterialTheme.typography.bodySmall,
                                                 color = MathTextSecondary
                                             )
                                         }
                                     }
+
                                     Column(horizontalAlignment = Alignment.End) {
                                         Text(
                                             text = "${item.score} pts",

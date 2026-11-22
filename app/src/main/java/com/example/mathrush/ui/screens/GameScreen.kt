@@ -8,6 +8,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -103,24 +104,30 @@ fun GameScreen(
                 }
             }
 
-            // --- COMBO MULTIPLIER BADGE ---
+            // --- COMBO MULTIPLIER BADGE (Polished Material 3 design) ---
             if (!uiState.isPracticeMode && uiState.comboMultiplier > 1) {
-                Card(
-                    colors = CardDefaults.cardColors(
-                        containerColor = when {
-                            uiState.comboMultiplier >= 5 -> MathPurple
-                            uiState.comboMultiplier >= 3 -> MathCyanDark
-                            else -> MathSurfaceVariant
-                        }
-                    ),
-                    shape = RoundedCornerShape(12.dp)
+                Surface(
+                    shape = RoundedCornerShape(12.dp),
+                    color = when {
+                        uiState.comboMultiplier >= 5 -> MathPurple
+                        uiState.comboMultiplier >= 3 -> MathCyanDark
+                        else -> MathSurfaceVariant
+                    },
+                    shadowElevation = 4.dp
                 ) {
-                    Text(
-                        text = " 🔥 COMBO x${uiState.comboMultiplier} (Streak: ${uiState.streak}) ",
-                        style = MaterialTheme.typography.titleSmall,
-                        color = Color.White,
-                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp)
-                    )
+                    Row(
+                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 6.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(6.dp)
+                    ) {
+                        Text(text = "⚡", fontSize = 16.sp)
+                        Text(
+                            text = "COMBO x${uiState.comboMultiplier} (Racha: ${uiState.streak})",
+                            style = MaterialTheme.typography.titleSmall,
+                            color = Color.White,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
                 }
             } else {
                 Spacer(modifier = Modifier.height(20.dp))

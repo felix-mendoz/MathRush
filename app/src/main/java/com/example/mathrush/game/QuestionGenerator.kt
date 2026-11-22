@@ -87,11 +87,8 @@ object QuestionGenerator {
     private val geometryGenerator = GeometryGenerator()
 
     fun generateQuestion(category: MathCategory? = null, difficulty: MathDifficulty = MathDifficulty.INTERMEDIATE): MathQuestion {
-        val selectedCategory = category ?: when (difficulty) {
-            MathDifficulty.EASY -> MathCategory.ARITHMETIC
-            MathDifficulty.INTERMEDIATE -> listOf(MathCategory.ARITHMETIC, MathCategory.ALGEBRA, MathCategory.GEOMETRY_TRIGONOMETRY).random()
-            MathDifficulty.ADVANCED -> listOf(MathCategory.ARITHMETIC, MathCategory.ALGEBRA, MathCategory.INTEGRAL_CALCULUS, MathCategory.GEOMETRY_TRIGONOMETRY).random()
-        }
+        // En modo desafío (category == null), elegimos aleatoriamente entre todas las categorías
+        val selectedCategory = category ?: MathCategory.entries.random()
 
         val generator: QuestionGeneratorStrategy = when (selectedCategory) {
             MathCategory.ARITHMETIC -> arithmeticGenerator
