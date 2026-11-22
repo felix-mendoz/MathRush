@@ -138,6 +138,18 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    fun saveCurrentGameScore() {
+        val state = _uiState.value
+        if (!state.isPracticeMode) {
+            scoreRepository.saveScore(
+                username = authRepositoryUsername(),
+                score = state.score,
+                maxCombo = state.maxCombo,
+                difficulty = state.difficulty
+            )
+        }
+    }
+
     private fun advancePracticeOrFinish() {
         val state = _uiState.value
         val answeredCount = state.practiceQuestionsAnswered + 1
@@ -243,12 +255,7 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
 
         if (remainingLives <= 0) {
             audioManager.playGameOverSound()
-            scoreRepository.saveScore(
-                username = authRepositoryUsername(),
-                score = state.score,
-                maxCombo = state.maxCombo,
-                difficulty = state.difficulty
-            )
+            saveCurrentGameScore()
             _uiState.update { it.copy(lives = 0, isGameOver = true, userInput = "") }
         } else {
             questionStartTime = System.currentTimeMillis()
@@ -277,7 +284,6 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     override fun onCleared() {
-        super.onCleared()
         timerJob?.cancel()
         audioManager.release()
     }

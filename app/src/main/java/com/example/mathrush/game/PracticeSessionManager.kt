@@ -24,7 +24,8 @@ data class PracticeReport(
     val averageTimeSeconds: Float,
     val categoryPerformances: Map<MathCategory, CategoryPerformance>,
     val weakestCategory: MathCategory?,
-    val recommendations: List<String>
+    val recommendations: List<String>,
+    val records: List<PracticeAnswerRecord> = emptyList()
 )
 
 class PracticeSessionManager {
@@ -38,7 +39,7 @@ class PracticeSessionManager {
     fun generateReport(): PracticeReport {
         val total = records.size
         if (total == 0) {
-            return PracticeReport(0, 0, 0, 0f, 0f, emptyMap(), null, listOf("¡Realiza algunas prácticas para obtener recomendaciones!"))
+            return PracticeReport(0, 0, 0, 0f, 0f, emptyMap(), null, listOf("¡Realiza algunas prácticas para obtener recomendaciones!"), emptyList())
         }
 
         val correct = records.count { it.isCorrect }
@@ -82,7 +83,8 @@ class PracticeSessionManager {
             averageTimeSeconds = avgTime,
             categoryPerformances = perfMap,
             weakestCategory = weakest,
-            recommendations = recommendations
+            recommendations = recommendations,
+            records = records.toList()
         )
     }
 
