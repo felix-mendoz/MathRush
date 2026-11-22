@@ -161,13 +161,18 @@ fun GameScreen(
                         )
                         Spacer(modifier = Modifier.height(8.dp))
                         if (q.latexExpression != null) {
-                            MathView(
-                                latex = q.latexExpression,
+                            Box(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .height(80.dp),
-                                displayMode = true
-                            )
+                                    .height(100.dp),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                MathView(
+                                    latex = q.latexExpression,
+                                    modifier = Modifier.fillMaxSize(),
+                                    displayMode = true
+                                )
+                            }
                         }
                     } else {
                         CircularProgressIndicator(color = MathCyan)

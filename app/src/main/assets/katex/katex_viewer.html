@@ -1,43 +1,44 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="utf-8">
-    <title>Math Viewer</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta charset="UTF-8">
+
     <link rel="stylesheet" href="katex.min.css">
     <script src="katex.min.js"></script>
+
     <style>
         body {
-            background-color: transparent;
-            color: #FFFFFF;
-            font-family: sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-            padding: 0;
-            overflow: hidden;
+            background: transparent;
+            color: white;
+            font-size: 24px;
         }
+
         #math-container {
-            font-size: 1.4rem;
-            text-align: center;
+            color: white;
         }
     </style>
 </head>
+
 <body>
-    <div id="math-container"></div>
-    <script>
-        function renderMath(latexString, displayMode) {
-            try {
-                katex.render(latexString, document.getElementById('math-container'), {
-                    displayMode: displayMode === 'true',
-                    throwOnError: false
-                });
-            } catch (e) {
-                document.getElementById('math-container').innerText = latexString;
-            }
-        }
-    </script>
+
+<div id="math-container">Comprobando KaTeX...</div>
+
+<script>
+    function renderMath(latex, displayMode) {
+    const container = document.getElementById("math-container");
+
+    try {
+        katex.render(latex, container, {
+            displayMode: displayMode === "true",
+            throwOnError: false,
+            strict: "ignore"
+        });
+    } catch (error) {
+        console.error("Error renderizando:", error);
+        container.textContent = error;
+    }
+}
+</script>
+
 </body>
 </html>
