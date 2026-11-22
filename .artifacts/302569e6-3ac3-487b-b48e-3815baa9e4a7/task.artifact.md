@@ -1,0 +1,7 @@
+- `[x]` 1. Configurar recursos de KaTeX en assets y componente Composable `MathView`
+- `[x]` 2. Definir modelo `MathAnswer` (clase sellada) y enriquecer `MathQuestion`
+- `[x]` 3. Implementar generadores modulares por categoría (Aritmética, Álgebra, Cálculo Diferencial, Cálculo Integral, Geometría y Trigonometría)
+- `[x]` 4. Actualizar `GameEngine`, `PracticeSessionManager` and refactorizar `QuestionGenerator` como coordinador
+- `[x]` 5. Actualizar `GameScreen` para mostrar expresiones LaTeX con `MathView` y teclado extendido
+- `[x]` 6. Implementar pruebas unitarias para los generadores y validación de respuestas
+- `[x]` 7. Ejecutar compilación y pruebas para verificar el funcionamiento

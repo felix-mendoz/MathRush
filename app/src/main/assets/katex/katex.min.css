@@ -1,0 +1,12 @@
+/* KaTeX v0.16.8 minimal core styling */
+.katex{font:normal 1.21em KaTeX_Main,Times New Roman,serif;line-height:1.2;text-indent:0;text-rendering:auto}
+.katex *{-ms-high-contrast-adjust:none}
+.katex .katex-display{display:block;margin:1em 0;text-align:center}
+.katex .mord{display:inline-block}
+.katex .mop{display:inline-block}
+.katex .mbin{display:inline-block;padding:0 0.22222em}
+.katex .mrel{display:inline-block;padding:0 0.27778em}
+.katex .mfrac{display:inline-block;vertical-align:-0.345em;padding:0 0.1em}
+.katex .mfrac .frac-line{display:inline-block;border-bottom:0.04em solid;width:100%}
+.katex .sqrt{display:inline-block}
+.katex .mspace{display:inline-block}

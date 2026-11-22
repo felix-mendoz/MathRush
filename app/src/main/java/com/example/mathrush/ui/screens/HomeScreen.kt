@@ -1,5 +1,7 @@
 package com.example.mathrush.ui.screens
 
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -32,12 +34,24 @@ fun HomeScreen(
     val currentUser = authRepo.currentUser
     var selectedDifficulty by remember { mutableStateOf(1) } // 1: Fácil, 2: Intermedio, 3: Avanzado
 
+    // Animación de fondo al cambiar de dificultad
+    val targetBgColor = when (selectedDifficulty) {
+        1 -> Color(0xFF082522) // Verde/Cian suave para fácil
+        2 -> Color(0xFF1B2340) // Púrpura para intermedio
+        else -> Color(0xFF321422) // Rosado/Rojo para avanzado
+    }
+    val animatedBgColor by animateColorAsState(
+        targetValue = targetBgColor,
+        animationSpec = tween(600),
+        label = "backgroundColor"
+    )
+
     Surface(
         modifier = modifier
             .fillMaxSize()
             .statusBarsPadding()
             .navigationBarsPadding(),
-        color = MaterialTheme.colorScheme.background
+        color = animatedBgColor
     ) {
         Column(
             modifier = Modifier
@@ -126,7 +140,7 @@ fun HomeScreen(
                 )
             }
 
-            // --- DIFFICULTY SELECTOR ---
+            // --- DIFFICULTY SELECTOR & TOOLTIP ---
             Column(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalAlignment = Alignment.CenterHorizontally,
@@ -143,9 +157,9 @@ fun HomeScreen(
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     val difficulties = listOf(
-                        Triple(1, "Fácil", "15s / Básica"),
-                        Triple(2, "Intermedio", "10s / Estándar"),
-                        Triple(3, "Avanzado", "20s / Cálculo")
+                        Triple(1, "Fácil", "15s • 1.0x"),
+                        Triple(2, "Intermedio", "10s • 1.5x"),
+                        Triple(3, "Avanzado", "20s • 2.0x")
                     )
 
                     for ((level, title, desc) in difficulties) {
@@ -178,12 +192,32 @@ fun HomeScreen(
                                     text = desc,
                                     style = MaterialTheme.typography.labelSmall,
                                     color = if (isSelected) Color.White.copy(alpha = 0.9f) else MathTextSecondary,
-                                    fontSize = 9.sp,
+                                    fontSize = 10.sp,
                                     maxLines = 1
                                 )
                             }
                         }
                     }
+                }
+
+                // Tooltip / Description Card for Selected Difficulty
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(12.dp),
+                    colors = CardDefaults.cardColors(containerColor = MathSurfaceCard)
+                ) {
+                    val tooltipText = when (selectedDifficulty) {
+                        1 -> "💡 Fácil: 15s por pregunta • Solo operaciones aritméticas básicas (+, -, ×, ÷) • Multiplicador: 1.0x"
+                        2 -> "💡 Intermedio: 10s por pregunta • Incluye Aritmética y Álgebra (ecuaciones) • Multiplicador: 1.5x"
+                        else -> "💡 Avanzado: 20s por pregunta • Todas las categorías: Cálculo diferencial, integral, álgebra y geometría • Multiplicador: 2.0x"
+                    }
+                    Text(
+                        text = tooltipText,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MathCyan,
+                        modifier = Modifier.padding(12.dp),
+                        textAlign = TextAlign.Center
+                    )
                 }
             }
 
@@ -219,7 +253,7 @@ fun HomeScreen(
                                 fontWeight = FontWeight.Bold
                             )
                             Text(
-                                text = "Puntuación, Combos y Récords",
+                                text = "Puntuación, Combos y Multiplicador",
                                 style = MaterialTheme.typography.labelMedium,
                                 color = Color.White.copy(alpha = 0.8f)
                             )

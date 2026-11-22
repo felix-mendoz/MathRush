@@ -2,7 +2,7 @@ package com.example.mathrush.game
 
 data class PracticeAnswerRecord(
     val question: MathQuestion,
-    val userAnswer: Int?,
+    val userAnswer: String?,
     val isCorrect: Boolean,
     val timeSpentSeconds: Int
 )
@@ -30,8 +30,8 @@ data class PracticeReport(
 class PracticeSessionManager {
     private val records = mutableListOf<PracticeAnswerRecord>()
 
-    fun recordAnswer(question: MathQuestion, userAnswer: Int?, timeSpent: Int) {
-        val isCorrect = userAnswer == question.correctAnswer
+    fun recordAnswer(question: MathQuestion, userAnswer: String?, timeSpent: Int) {
+        val isCorrect = userAnswer != null && question.correctAnswer.validate(userAnswer)
         records.add(PracticeAnswerRecord(question, userAnswer, isCorrect, timeSpent))
     }
 

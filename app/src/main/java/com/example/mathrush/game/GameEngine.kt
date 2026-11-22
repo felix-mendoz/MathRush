@@ -17,8 +17,8 @@ data class GameUiState(
     val currentQuestion: MathQuestion? = null,
     val score: Int = 0,
     val lives: Int = 3,
-    val timeLeft: Int = 10,
-    val maxTimePerQuestion: Int = 10,
+    val timeLeft: Int = 20,
+    val maxTimePerQuestion: Int = 20,
     val streak: Int = 0,
     val maxCombo: Int = 0,
     val comboMultiplier: Int = 1,
@@ -69,9 +69,9 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    fun onNumberInput(digit: String) {
+    fun onNumberInput(input: String) {
         if (_uiState.value.isGameOver) return
-        _uiState.update { it.copy(userInput = it.userInput + digit) }
+        _uiState.update { it.copy(userInput = it.userInput + input) }
     }
 
     fun onDeleteInput() {
@@ -86,10 +86,9 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
         val state = _uiState.value
         if (state.isGameOver || state.currentQuestion == null) return
 
-        val userAnswerInt = state.userInput.toIntOrNull() ?: return
-        val correctAnswer = state.currentQuestion.correctAnswer
+        val isCorrect = state.currentQuestion.correctAnswer.validate(state.userInput)
 
-        if (userAnswerInt == correctAnswer) {
+        if (isCorrect) {
             handleCorrectAnswer()
         } else {
             handleIncorrectAnswer()

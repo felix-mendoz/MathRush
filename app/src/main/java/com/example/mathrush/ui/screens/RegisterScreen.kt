@@ -12,19 +12,24 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.mathrush.data.AuthRepository
 import com.example.mathrush.ui.theme.*
+import kotlinx.coroutines.launch
 
 @Composable
 fun RegisterScreen(
     onRegisterSuccess: () -> Unit,
     onBackToLogin: () -> Unit,
 ) {
-    var name by remember { mutableStateOf("") }
+    val authRepo = remember { AuthRepository() }
+    val coroutineScope = rememberCoroutineScope()
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
+    var isLoading by remember { mutableStateOf(false) }
+    var errorMessage by remember { mutableStateOf<String?>(null) }
 
     Surface(
         modifier = Modifier.fillMaxSize(),
@@ -60,7 +65,7 @@ fun RegisterScreen(
             Spacer(modifier = Modifier.height(16.dp))
 
             Text(
-                text = "Crear Cuenta",
+                text = "Crear Cuenta en Firebase",
                 style = MaterialTheme.typography.headlineMedium,
                 color = MathTextPrimary
             )
@@ -79,20 +84,14 @@ fun RegisterScreen(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
-                    OutlinedTextField(
-                        value = name,
-                        onValueChange = { name = it },
-                        label = { Text("Nombre de usuario", color = MathTextSecondary) },
-                        modifier = Modifier.fillMaxWidth(),
-                        singleLine = true,
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = MathPurple,
-                            unfocusedBorderColor = MathOutline,
-                            focusedTextColor = MathTextPrimary,
-                            unfocusedTextColor = MathTextPrimary
-                        ),
-                        shape = RoundedCornerShape(12.dp)
-                    )
+                    if (errorMessage != null) {
+                        Text(
+                            text = errorMessage!!,
+                            color = MathError,
+                            style = MaterialTheme.typography.bodySmall,
+                            textAlign = TextAlign.Center
+                        )
+                    }
 
                     OutlinedTextField(
                         value = email,
@@ -112,7 +111,7 @@ fun RegisterScreen(
                     OutlinedTextField(
                         value = password,
                         onValueChange = { password = it },
-                        label = { Text("Contraseña", color = MathTextSecondary) },
+                        label = { Text("Contraseña (mín. 6 caracteres)", color = MathTextSecondary) },
                         modifier = Modifier.fillMaxWidth(),
                         singleLine = true,
                         visualTransformation = PasswordVisualTransformation(),
@@ -128,19 +127,40 @@ fun RegisterScreen(
                     Spacer(modifier = Modifier.height(8.dp))
 
                     Button(
-                        onClick = onRegisterSuccess,
+                        onClick = {
+                            if (email.isBlank() || password.length < 6) {
+                                errorMessage = "Ingresa un correo válido y contraseña de al menos 6 caracteres"
+                                return@Button
+                            }
+                            coroutineScope.launch {
+                                isLoading = true
+                                errorMessage = null
+                                val result = authRepo.signUp(email.trim(), password)
+                                isLoading = false
+                                if (result.isSuccess) {
+                                    onRegisterSuccess()
+                                } else {
+                                    errorMessage = result.exceptionOrNull()?.localizedMessage ?: "Error al registrar cuenta"
+                                }
+                            }
+                        },
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(56.dp),
                         shape = RoundedCornerShape(14.dp),
-                        colors = ButtonDefaults.buttonColors(containerColor = MathPurple)
+                        colors = ButtonDefaults.buttonColors(containerColor = MathPurple),
+                        enabled = !isLoading
                     ) {
-                        Text(
-                            text = "Registrarse",
-                            style = MaterialTheme.typography.titleMedium,
-                            color = Color.White,
-                            fontWeight = FontWeight.Bold
-                        )
+                        if (isLoading) {
+                            CircularProgressIndicator(color = Color.White, modifier = Modifier.size(24.dp))
+                        } else {
+                            Text(
+                                text = "Registrarse",
+                                style = MaterialTheme.typography.titleMedium,
+                                color = Color.White,
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
                     }
 
                     TextButton(onClick = onBackToLogin) {
@@ -154,13 +174,4 @@ fun RegisterScreen(
             }
         }
     }
-}
-
-@Preview
-@Composable
-fun PreviewRegisterScreen() {
-    RegisterScreen(
-        onRegisterSuccess = {},
-        onBackToLogin = {}
-    )
 }

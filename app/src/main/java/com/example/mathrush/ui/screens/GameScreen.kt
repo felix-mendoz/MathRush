@@ -13,6 +13,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.mathrush.game.GameViewModel
+import com.example.mathrush.ui.components.MathView
 import com.example.mathrush.ui.theme.*
 
 @Composable
@@ -44,7 +45,7 @@ fun GameScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(20.dp),
+                .padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.SpaceBetween
         ) {
@@ -98,11 +99,11 @@ fun GameScreen(
                         text = " 🔥 COMBO x${uiState.comboMultiplier} (Streak: ${uiState.streak}) ",
                         style = MaterialTheme.typography.titleSmall,
                         color = Color.White,
-                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 6.dp)
+                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp)
                     )
                 }
             } else {
-                Spacer(modifier = Modifier.height(28.dp))
+                Spacer(modifier = Modifier.height(20.dp))
             }
 
             // --- TIMER BAR ---
@@ -131,24 +132,43 @@ fun GameScreen(
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(180.dp),
+                    .height(210.dp),
                 shape = RoundedCornerShape(24.dp),
                 colors = CardDefaults.cardColors(containerColor = MathSurfaceCard),
                 elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
             ) {
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(16.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
                 ) {
                     val q = uiState.currentQuestion
                     if (q != null) {
+                        // Category & Subcategory chip
                         Text(
-                            text = q.questionText,
-                            style = MaterialTheme.typography.headlineMedium,
-                            color = MathTextPrimary,
-                            textAlign = TextAlign.Center,
-                            modifier = Modifier.padding(16.dp)
+                            text = "${q.category.title} • ${q.subcategory}",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MathCyan
                         )
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(
+                            text = q.text,
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MathTextSecondary,
+                            textAlign = TextAlign.Center
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+                        if (q.latexExpression != null) {
+                            MathView(
+                                latex = q.latexExpression,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(80.dp),
+                                displayMode = true
+                            )
+                        }
                     } else {
                         CircularProgressIndicator(color = MathCyan)
                     }
@@ -159,7 +179,7 @@ fun GameScreen(
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(70.dp),
+                    .height(65.dp),
                 shape = RoundedCornerShape(16.dp),
                 colors = CardDefaults.cardColors(containerColor = MathSurfaceVariant)
             ) {
@@ -168,46 +188,46 @@ fun GameScreen(
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
-                        text = uiState.userInput.ifEmpty { "_" },
-                        style = MaterialTheme.typography.headlineLarge,
+                        text = uiState.userInput.ifEmpty { "Escribe tu respuesta..." },
+                        style = MaterialTheme.typography.headlineMedium,
                         color = if (uiState.userInput.isEmpty()) MathTextSecondary else MathCyan,
                         textAlign = TextAlign.Center
                     )
                 }
             }
 
-            // --- NUMBER KEYPAD ---
+            // --- EXTENDED NUMBER KEYPAD (Digits, -, ., /, ⌫, ✓) ---
             Column(
                 modifier = Modifier.fillMaxWidth(),
-                verticalArrangement = Arrangement.spacedBy(10.dp)
+                verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 val buttons = listOf(
-                    listOf("1", "2", "3"),
-                    listOf("4", "5", "6"),
-                    listOf("7", "8", "9"),
+                    listOf("1", "2", "3", "-"),
+                    listOf("4", "5", "6", "."),
+                    listOf("7", "8", "9", "/"),
                     listOf("⌫", "0", "✓")
                 )
 
                 for (row in buttons) {
                     Row(
                         modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(10.dp)
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
-                        for (digit in row) {
+                        for (key in row) {
                             Button(
                                 onClick = {
-                                    when (digit) {
+                                    when (key) {
                                         "⌫" -> viewModel.onDeleteInput()
                                         "✓" -> viewModel.submitAnswer()
-                                        else -> viewModel.onNumberInput(digit)
+                                        else -> viewModel.onNumberInput(key)
                                     }
                                 },
                                 modifier = Modifier
-                                    .weight(1f)
-                                    .height(60.dp),
-                                shape = RoundedCornerShape(14.dp),
+                                    .weight(if (row.size == 4) 1f else if (key == "0" || key == "⌫" || key == "✓") 1.33f else 1f)
+                                    .height(52.dp),
+                                shape = RoundedCornerShape(12.dp),
                                 colors = ButtonDefaults.buttonColors(
-                                    containerColor = when (digit) {
+                                    containerColor = when (key) {
                                         "✓" -> MathSuccess
                                         "⌫" -> MathErrorContainer
                                         else -> MathSurfaceCard
@@ -215,8 +235,8 @@ fun GameScreen(
                                 )
                             ) {
                                 Text(
-                                    text = digit,
-                                    style = MaterialTheme.typography.titleLarge,
+                                    text = key,
+                                    style = MaterialTheme.typography.titleMedium,
                                     color = Color.White
                                 )
                             }

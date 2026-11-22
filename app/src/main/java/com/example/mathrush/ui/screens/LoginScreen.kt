@@ -12,18 +12,24 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.mathrush.data.AuthRepository
 import com.example.mathrush.ui.theme.*
+import kotlinx.coroutines.launch
 
 @Composable
 fun LoginScreen(
     onLoginSuccess: () -> Unit,
     onNavigateRegister: () -> Unit,
 ) {
+    val authRepo = remember { AuthRepository() }
+    val coroutineScope = rememberCoroutineScope()
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
+    var isLoading by remember { mutableStateOf(false) }
+    var errorMessage by remember { mutableStateOf<String?>(null) }
 
     Surface(
         modifier = Modifier.fillMaxSize(),
@@ -65,7 +71,7 @@ fun LoginScreen(
                 letterSpacing = 2.sp
             )
             Text(
-                text = "Desafía tu mente",
+                text = "Inicia sesión con Firebase",
                 style = MaterialTheme.typography.bodyMedium,
                 color = MathTextSecondary
             )
@@ -84,10 +90,19 @@ fun LoginScreen(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
+                    if (errorMessage != null) {
+                        Text(
+                            text = errorMessage!!,
+                            color = MathError,
+                            style = MaterialTheme.typography.bodySmall,
+                            textAlign = TextAlign.Center
+                        )
+                    }
+
                     OutlinedTextField(
                         value = email,
                         onValueChange = { email = it },
-                        label = { Text("Correo o Usuario", color = MathTextSecondary) },
+                        label = { Text("Correo electrónico", color = MathTextSecondary) },
                         modifier = Modifier.fillMaxWidth(),
                         singleLine = true,
                         colors = OutlinedTextFieldDefaults.colors(
@@ -118,19 +133,40 @@ fun LoginScreen(
                     Spacer(modifier = Modifier.height(8.dp))
 
                     Button(
-                        onClick = onLoginSuccess,
+                        onClick = {
+                            if (email.isBlank() || password.isBlank()) {
+                                errorMessage = "Por favor completa todos los campos"
+                                return@Button
+                            }
+                            coroutineScope.launch {
+                                isLoading = true
+                                errorMessage = null
+                                val result = authRepo.signIn(email.trim(), password)
+                                isLoading = false
+                                if (result.isSuccess) {
+                                    onLoginSuccess()
+                                } else {
+                                    errorMessage = result.exceptionOrNull()?.localizedMessage ?: "Error al iniciar sesión"
+                                }
+                            }
+                        },
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(56.dp),
                         shape = RoundedCornerShape(14.dp),
-                        colors = ButtonDefaults.buttonColors(containerColor = MathPurple)
+                        colors = ButtonDefaults.buttonColors(containerColor = MathPurple),
+                        enabled = !isLoading
                     ) {
-                        Text(
-                            text = "Iniciar Sesión",
-                            style = MaterialTheme.typography.titleMedium,
-                            color = Color.White,
-                            fontWeight = FontWeight.Bold
-                        )
+                        if (isLoading) {
+                            CircularProgressIndicator(color = Color.White, modifier = Modifier.size(24.dp))
+                        } else {
+                            Text(
+                                text = "Iniciar Sesión",
+                                style = MaterialTheme.typography.titleMedium,
+                                color = Color.White,
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
                     }
 
                     TextButton(onClick = onNavigateRegister) {
@@ -144,13 +180,4 @@ fun LoginScreen(
             }
         }
     }
-}
-
-@Preview
-@Composable
-fun PreviewLoginScreen() {
-    LoginScreen(
-        onLoginSuccess = {},
-        onNavigateRegister = {}
-    )
 }
