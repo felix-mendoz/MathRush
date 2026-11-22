@@ -1,7 +1,5 @@
 package com.example.mathrush.ui.screens
 
-import androidx.compose.animation.animateColorAsState
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -34,23 +32,12 @@ fun HomeScreen(
     val currentUser = authRepo.currentUser
     var selectedDifficulty by remember { mutableStateOf(1) } // 1: Fácil, 2: Intermedio, 3: Avanzado
 
-    val targetBgColor = when (selectedDifficulty) {
-        1 -> Color(0xFF082522)
-        2 -> Color(0xFF1B2340)
-        else -> Color(0xFF321422)
-    }
-    val animatedBgColor by animateColorAsState(
-        targetValue = targetBgColor,
-        animationSpec = tween(600),
-        label = "backgroundColor"
-    )
-
     Surface(
         modifier = modifier
             .fillMaxSize()
             .statusBarsPadding()
             .navigationBarsPadding(),
-        color = animatedBgColor
+        color = MaterialTheme.colorScheme.background
     ) {
         Column(
             modifier = Modifier
@@ -59,7 +46,7 @@ fun HomeScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.SpaceBetween
         ) {
-            // --- TOP BAR (Only Profile / Login button, no online status badge) ---
+            // --- TOP BAR ---
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.End,

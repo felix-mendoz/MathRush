@@ -71,7 +71,7 @@ fun LoginScreen(
                 letterSpacing = 2.sp
             )
             Text(
-                text = "Inicia sesión con Firebase",
+                text = "Inicia sesión",
                 style = MaterialTheme.typography.bodyMedium,
                 color = MathTextSecondary
             )

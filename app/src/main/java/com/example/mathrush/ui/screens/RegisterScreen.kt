@@ -66,7 +66,7 @@ fun RegisterScreen(
             Spacer(modifier = Modifier.height(16.dp))
 
             Text(
-                text = "Crear Cuenta en Firebase",
+                text = "Crear Cuenta",
                 style = MaterialTheme.typography.headlineMedium,
                 color = MathTextPrimary
             )
