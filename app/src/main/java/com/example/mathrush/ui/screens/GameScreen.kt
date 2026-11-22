@@ -13,6 +13,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.mathrush.game.GameEvent
 import com.example.mathrush.game.GameViewModel
 import com.example.mathrush.game.PracticeReport
 import com.example.mathrush.ui.components.MathView
@@ -32,9 +33,13 @@ fun GameScreen(
         viewModel.startGame(difficultyLevel = difficultyLevel, practiceMode = isPracticeMode)
     }
 
-    LaunchedEffect(uiState.isGameOver) {
-        if (uiState.isGameOver) {
-            onGameOver(uiState.score, uiState.practiceReport)
+    LaunchedEffect(viewModel) {
+        viewModel.events.collect { event ->
+            when (event) {
+                is GameEvent.ShowResults -> {
+                    onGameOver(event.score, event.report)
+                }
+            }
         }
     }
 
@@ -68,7 +73,7 @@ fun GameScreen(
                         shape = RoundedCornerShape(12.dp)
                     ) {
                         Text(
-                            text = "Práctica ${uiState.practiceQuestionsAnswered + 1}/10 ",
+                            text = " 📝 Práctica ${uiState.practiceQuestionsAnswered + 1}/10 ",
                             style = MaterialTheme.typography.titleSmall,
                             color = MathCyan,
                             modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp)
@@ -104,7 +109,7 @@ fun GameScreen(
                 }
             }
 
-            // --- COMBO MULTIPLIER BADGE (Polished Material 3 design) ---
+            // --- COMBO MULTIPLIER BADGE ---
             if (!uiState.isPracticeMode && uiState.comboMultiplier > 1) {
                 Surface(
                     shape = RoundedCornerShape(12.dp),
