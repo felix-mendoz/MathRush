@@ -239,7 +239,7 @@ fun PracticeReportScreen(
                                     HorizontalDivider(color = MathSurfaceVariant, thickness = 1.dp)
 
                                     Text(
-                                        text = "Tu respuesta: ${record.userAnswer ?: "Sin respuesta"}\nRespuesta correcta: ${record.question.correctAnswer}",
+                                        text = "Tu respuesta: ${record.userAnswer ?: "Sin respuesta"}\nRespuesta correcta: ${record.question.correctAnswer.toString()}",
                                         style = MaterialTheme.typography.bodySmall,
                                         color = if (record.isCorrect) MathSuccess else MathError,
                                         fontWeight = FontWeight.Bold

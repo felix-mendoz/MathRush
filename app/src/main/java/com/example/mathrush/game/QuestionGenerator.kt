@@ -17,11 +17,25 @@ enum class MathDifficulty(val title: String, val defaultTimeSeconds: Int) {
 }
 
 sealed class MathAnswer {
-    data class Integer(val value: Int) : MathAnswer()
-    data class Decimal(val value: Double, val tolerance: Double = 0.01) : MathAnswer()
-    data class Fraction(val numerator: Int, val denominator: Int) : MathAnswer()
-    data class Text(val value: String) : MathAnswer()
-    data class Algebraic(val expression: String) : MathAnswer()
+    data class Integer(val value: Int) : MathAnswer() {
+        override fun toString() = value.toString()
+    }
+
+    data class Decimal(val value: Double, val tolerance: Double = 0.01) : MathAnswer() {
+        override fun toString() = value.toString()
+    }
+
+    data class Fraction(val numerator: Int, val denominator: Int) : MathAnswer() {
+        override fun toString() = "$numerator/$denominator"
+    }
+
+    data class Text(val value: String) : MathAnswer() {
+        override fun toString() = value
+    }
+
+    data class Algebraic(val expression: String) : MathAnswer() {
+        override fun toString() = expression
+    }
 
     fun validate(input: String): Boolean {
         val trimmed = input.trim()
@@ -55,16 +69,6 @@ sealed class MathAnswer {
             is Algebraic -> trimmed.replace("\\s".toRegex(), "").equals(expression.replace("\\s".toRegex(), ""), ignoreCase = true)
         }
     }
-
-    override fun toString(): String {
-        return when (this) {
-            is Integer -> value.toString()
-            is Decimal -> value.toString()
-            is Fraction -> "$numerator/$denominator"
-            is Text -> value
-            is Algebraic -> expression
-        }
-    }
 }
 
 data class MathQuestion(
@@ -87,8 +91,12 @@ object QuestionGenerator {
     private val geometryGenerator = GeometryGenerator()
 
     fun generateQuestion(category: MathCategory? = null, difficulty: MathDifficulty = MathDifficulty.INTERMEDIATE): MathQuestion {
-        // En modo desafío (category == null), elegimos aleatoriamente entre todas las categorías
-        val selectedCategory = category ?: MathCategory.entries.random()
+        // En modo desafío (category == null), las categorías dependen estrictamente de la dificultad seleccionada
+        val selectedCategory = category ?: when (difficulty) {
+            MathDifficulty.EASY -> listOf(MathCategory.ARITHMETIC, MathCategory.GEOMETRY_TRIGONOMETRY).random()
+            MathDifficulty.INTERMEDIATE -> listOf(MathCategory.ARITHMETIC, MathCategory.ALGEBRA, MathCategory.GEOMETRY_TRIGONOMETRY).random()
+            MathDifficulty.ADVANCED -> listOf(MathCategory.ARITHMETIC, MathCategory.ALGEBRA, MathCategory.INTEGRAL_CALCULUS, MathCategory.GEOMETRY_TRIGONOMETRY).random()
+        }
 
         val generator: QuestionGeneratorStrategy = when (selectedCategory) {
             MathCategory.ARITHMETIC -> arithmeticGenerator

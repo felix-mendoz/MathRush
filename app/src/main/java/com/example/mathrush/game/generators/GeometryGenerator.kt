@@ -25,8 +25,8 @@ class GeometryGenerator : QuestionGeneratorStrategy {
             subcategory = "Áreas y perímetros",
             difficulty = MathDifficulty.EASY,
             explanation = listOf(
-                "1. Fórmula del área del rectángulo: A = base \\cdot altura.",
-                "2. A = $base \\cdot $height = $area.",
+                "1. Fórmula del área del rectángulo: A = base X altura.",
+                "2. A = $base X $height = $area.",
                 "3. Resultado: $area"
             )
         )
