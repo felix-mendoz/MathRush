@@ -121,8 +121,8 @@ fun HomeScreen(
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     val difficulties = listOf(
-                        Triple(1, "Fácil", "15s • 1.0x"),
-                        Triple(2, "Intermedio", "10s • 1.5x"),
+                        Triple(1, "Fácil", "20s • 1.0x"),
+                        Triple(2, "Intermedio", "15s • 1.5x"),
                         Triple(3, "Avanzado", "20s • 2.0x")
                     )
 
